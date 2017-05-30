@@ -8,7 +8,7 @@ MAINTAINER Alan Orth <alan.orth@gmail.com>
 # Environment variables
 ENV DSPACE_VERSION=5.6 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.78
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
-    MAVEN_TGZ_URL=http://apache.mirror.iweb.ca/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
+    MAVEN_TGZ_URL=http://apache.mirror.iweb.ca/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
     DSPACE_GIT_REVISION=dspace-5.6
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/dspace
