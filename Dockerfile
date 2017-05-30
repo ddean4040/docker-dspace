@@ -22,12 +22,10 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     git \
     && mkdir -p maven dspace "$CATALINA_HOME" \
-    && curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
-    && curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
     && curl -L "$DPSACE_TGZ_URL" -o dspace.tar.gz \
-    && tar -xvf tomcat.tar.gz --strip-components=1 -C "$CATALINA_HOME" \
-    && tar -xvf maven.tar.gz --strip-components=1  -C maven \
     && tar -xvf dspace.tar.gz --strip-components=1  -C dspace \
+    && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
+    && curl -fSL "$MAVEN_TGZ_URL" | tar -xz --strip-components=1 -C maven \
     && cd dspace && ../maven/bin/mvn package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
