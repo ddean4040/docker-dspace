@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y \
     vim \
     ant \
     postgresql-client \
-    git \
-    mkdir -p maven dspace "$CATALINA_HOME" \
+    git
+    && mkdir -p maven dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
     && curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
     && curl -L "$DPSACE_TGZ_URL" -o dspace.tar.gz \
