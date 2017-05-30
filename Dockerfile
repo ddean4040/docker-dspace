@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml \
     && rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
-    && apt-get remove -y ant git
+    && apt-get remove -y ant git && apt-get -y autoremove
 
 # Install root filesystem
 ADD ./rootfs /
