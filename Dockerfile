@@ -3,7 +3,7 @@
 #
 
 FROM openjdk:8-jdk
-MAINTAINER 1science Devops Team <devops@1science.org>
+MAINTAINER Alan Orth <alan.orth@gmail.com>
 
 # Environment variables
 ENV DSPACE_VERSION=5.6 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.78
