@@ -9,7 +9,8 @@ MAINTAINER Alan Orth <alan.orth@gmail.com>
 ENV DSPACE_VERSION=5.6 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.78
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
     MAVEN_TGZ_URL=http://apache.mirror.iweb.ca/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
-    DPSACE_TGZ_URL=https://github.com/DSpace/DSpace/releases/download/dspace-${DSPACE_VERSION}/dspace-${DSPACE_VERSION}-release.tar.gz
+    DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-5.6
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/dspace
 ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
@@ -22,10 +23,9 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     git \
     && mkdir -p maven dspace "$CATALINA_HOME" \
-    && curl -L "$DPSACE_TGZ_URL" -o dspace.tar.gz \
-    && tar -xvf dspace.tar.gz --strip-components=1  -C dspace \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && curl -fSL "$MAVEN_TGZ_URL" | tar -xz --strip-components=1 -C maven \
+    && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace \
     && cd dspace && ../maven/bin/mvn package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
