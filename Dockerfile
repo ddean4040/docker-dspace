@@ -16,8 +16,12 @@ ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 WORKDIR /tmp
 
 # Install runtime and dependencies
-RUN apt-get update && apt-get install -y vim ant postgresql-client \
-    && mkdir -p maven dspace "$CATALINA_HOME" \
+RUN apt-get update && apt-get install -y \
+    vim \
+    ant \
+    postgresql-client \
+    git \
+    mkdir -p maven dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
     && curl -fSL "$MAVEN_TGZ_URL" -o maven.tar.gz \
     && curl -L "$DPSACE_TGZ_URL" -o dspace.tar.gz \
@@ -29,7 +33,7 @@ RUN apt-get update && apt-get install -y vim ant postgresql-client \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml \
-    && rm -fr ~/.m2 && rm -fr /tmp/* && apt-get remove -y ant
+    && rm -fr ~/.m2 && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/* && apt-get remove -y ant git
 
 # Install root filesystem
 ADD ./rootfs /
