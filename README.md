@@ -4,7 +4,7 @@
 
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
-This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use a modern Ubuntu 16.04 base, and bump some dependency versions.
+This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use a [modern Ubuntu 16.04 base](https://github.com/phusion/baseimage-docker), and bump some dependency versions.
 
 # Usage
 DSpace uses [PostgreSQL](http://www.postgresql.org/) as a database. We can either use a PostgreSQL container or an external database.
