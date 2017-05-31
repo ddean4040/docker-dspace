@@ -2,7 +2,7 @@
 # DSpace image
 #
 
-FROM openjdk:8-jdk
+FROM phusion/baseimage:0.9.22
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
 # Environment variables
@@ -17,13 +17,14 @@ ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 WORKDIR /tmp
 
 # Install runtime and dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt install -y \
     vim \
     ant \
     postgresql-client \
     git \
     imagemagick \
-    ghostscript
+    ghostscript \
+    openjdk-8-jdk-headless
 
 RUN mkdir -p maven dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
@@ -37,7 +38,7 @@ RUN cd dspace && ../maven/bin/mvn package \
     && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
 
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
-    && apt-get remove -y ant git && apt-get -y autoremove
+    && apt remove -y ant git && apt -y autoremove
 
 # Install root filesystem
 ADD ./rootfs /
@@ -45,7 +46,7 @@ ADD ./rootfs /
 WORKDIR /dspace
 
 # Build info
-RUN echo "Debian GNU/Linux 8 (jessie) image. (`uname -rsv`)" >> /root/.built && \
+RUN echo "Ubuntu GNU/Linux 16.04 (xenial) image. (`uname -rsv`)" >> /root/.built && \
     echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
     echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built
 
