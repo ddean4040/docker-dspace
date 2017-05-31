@@ -15,8 +15,12 @@ ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
 WORKDIR /tmp
 
+# Update the operating system userland, see notes on baseimage-docker
+# See: https://github.com/phusion/baseimage-docker#upgrading_os
+RUN apt update && apt upgrade -y -o Dpkg::Options::="--force-confold"
+
 # Install runtime and dependencies
-RUN apt update && apt install -y \
+RUN apt install -y \
     vim \
     ant \
     maven \
