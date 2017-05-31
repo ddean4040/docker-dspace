@@ -8,7 +8,6 @@ MAINTAINER Alan Orth <alan.orth@gmail.com>
 # Environment variables
 ENV DSPACE_VERSION=5.6 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.78
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
-    MAVEN_TGZ_URL=http://apache.mirror.iweb.ca/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
     DSPACE_GIT_REVISION=dspace-5.6
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/dspace
@@ -20,25 +19,25 @@ WORKDIR /tmp
 RUN apt update && apt install -y \
     vim \
     ant \
+    maven \
     postgresql-client \
     git \
     imagemagick \
     ghostscript \
     openjdk-8-jdk-headless
 
-RUN mkdir -p maven dspace "$CATALINA_HOME" \
+RUN mkdir -p dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
-    && curl -fSL "$MAVEN_TGZ_URL" | tar -xz --strip-components=1 -C maven \
     && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
-RUN cd dspace && ../maven/bin/mvn package \
+RUN cd dspace && mvn package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
 
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
-    && apt remove -y ant git && apt -y autoremove
+    && apt remove -y ant maven git && apt -y autoremove
 
 # Install root filesystem
 ADD ./rootfs /
