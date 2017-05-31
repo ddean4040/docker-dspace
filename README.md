@@ -79,6 +79,11 @@ $ docker run -itd --name dspace --network=dspace \
 
 The command above only installs the `jspui`, `xmlui`, and `rest` web applications.
 
+# Todo
+
+- Add a Tomcat configuration file
+- Allow configuration of JAVA_OPTS for JVM memory heap
+
 # License
 All the code contained in this repository, unless explicitly stated, is
 licensed under ISC license.
