@@ -47,8 +47,7 @@ To use an external PostgreSQL database you have to set some environment variable
   - `POSTGRES_PASSWORD` (optional): The password of the user used by DSpace (`dspace` by default)
   - `POSTGRES_ADMIN_USER` (optional): The admin user creating the Database and the user (`postgres` by default)
   - `POSTGRES_ADMIN_PASSWORD` (optional): The password of the admin user
-  
-  
+
 ```console
 $ docker run -itd --name dspace --network=dspace \
         -e POSTGRES_DB_HOST=my_host \
