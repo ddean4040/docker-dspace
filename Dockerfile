@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
     ant \
     postgresql-client \
     git \
+    imagemagick \
+    ghostscript \
     && mkdir -p maven dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && curl -fSL "$MAVEN_TGZ_URL" | tar -xz --strip-components=1 -C maven \
