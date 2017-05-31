@@ -23,17 +23,20 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     git \
     imagemagick \
-    ghostscript \
-    && mkdir -p maven dspace "$CATALINA_HOME" \
+    ghostscript
+
+RUN mkdir -p maven dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && curl -fSL "$MAVEN_TGZ_URL" | tar -xz --strip-components=1 -C maven \
-    && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace \
-    && cd dspace && ../maven/bin/mvn package \
+    && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
+
+RUN cd dspace && ../maven/bin/mvn package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
-    && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml \
-    && rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
+    && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
+
+RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
     && apt-get remove -y ant git && apt-get -y autoremove
 
 # Install root filesystem
