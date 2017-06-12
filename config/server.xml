@@ -70,10 +70,7 @@
     -->
     <Connector port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               address="127.0.0.1"
-               URIEncoding="UTF-8"
-               scheme="https"
-               secure="true" />
+               URIEncoding="UTF-8" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
@@ -129,8 +126,6 @@
 
       <Host name="localhost"  appBase="webapps"
             unpackWARs="true" autoDeploy="true">
-
-        <Alias>mel.cgiar.org</Alias>
 
         <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
