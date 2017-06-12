@@ -43,6 +43,8 @@ RUN cd dspace && mvn package \
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git && apt -y autoremove
 
+COPY config/server.xml /usr/local/tomcat/conf/server.xml
+
 # Install root filesystem
 ADD ./rootfs /
 
