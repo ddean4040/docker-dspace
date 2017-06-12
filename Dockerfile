@@ -34,7 +34,7 @@ RUN mkdir -p dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
-RUN cd dspace && mvn package \
+RUN cd dspace && mvn -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
