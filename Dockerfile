@@ -43,6 +43,9 @@ RUN cd dspace && mvn package \
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git && apt -y autoremove
 
+# rename xmlui app to ROOT so it is available on /
+RUN mv $CATALINA_HOME/webapps/xmlui $CATALINA_HOME/webapps/ROOT
+
 COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
 # Install root filesystem
