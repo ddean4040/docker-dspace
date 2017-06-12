@@ -38,7 +38,7 @@ RUN cd dspace && mvn package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
-    && sed -i s/CONFIDENTIAL/NONE/ /usr/local/tomcat/webapps/rest/WEB-INF/web.xml
+    && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git && apt -y autoremove
