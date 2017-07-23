@@ -31,7 +31,7 @@ RUN apt install -y \
     openjdk-8-jdk-headless
 
 # Add a key
-ADD id_ed25519 /root/.ssh/id_ed25519
+COPY id_ed25519 /root/.ssh/id_ed25519
 
 # Create known_hosts
 RUN touch /root/.ssh/known_hosts
@@ -58,7 +58,7 @@ RUN mv $CATALINA_HOME/webapps/xmlui $CATALINA_HOME/webapps/ROOT
 COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
 # Install root filesystem
-ADD ./rootfs /
+COPY ./rootfs /
 
 WORKDIR /dspace
 
