@@ -30,6 +30,15 @@ RUN apt install -y \
     ghostscript \
     openjdk-8-jdk-headless
 
+# Add a key
+ADD id_ed25519 /root/.ssh/id_ed25519
+
+# Create known_hosts
+RUN touch /root/.ssh/known_hosts
+
+# Add GitHub host key
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
 RUN mkdir -p dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
