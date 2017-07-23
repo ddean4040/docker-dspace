@@ -6,7 +6,7 @@ FROM phusion/baseimage:0.9.22
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.78
+ENV DSPACE_VERSION=5.7 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.79
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
     DSPACE_GIT_URL=git@github.com:CodeObia/DSpace.git \
     DSPACE_GIT_REVISION=5.7-production
