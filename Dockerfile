@@ -8,7 +8,7 @@ MAINTAINER Alan Orth <alan.orth@gmail.com>
 # Environment variables
 ENV DSPACE_VERSION=5.7 TOMCAT_MAJOR=7 TOMCAT_VERSION=7.0.79
 ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz \
-    DSPACE_GIT_URL=git@github.com:CodeObia/DSpace.git \
+    DSPACE_GIT_URL=https://github.com/CodeObia/DSpace.git \
     DSPACE_GIT_REVISION=5.7-production
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/dspace
 ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
@@ -29,15 +29,6 @@ RUN apt install -y \
     imagemagick \
     ghostscript \
     openjdk-8-jdk-headless
-
-# Add a key
-COPY id_ed25519 /root/.ssh/id_ed25519
-
-# Create known_hosts
-RUN touch /root/.ssh/known_hosts
-
-# Add GitHub host key
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 RUN mkdir -p dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
