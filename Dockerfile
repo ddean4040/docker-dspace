@@ -37,7 +37,7 @@ RUN mkdir -p dspace "$CATALINA_HOME" \
 RUN cd dspace && mvn -Dmirage2.on=true -Denv=repo.mel.cgiar.org -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package \
     && cd dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
-    && rm -fr "$CATALINA_HOME/webapps" && mv -f /dspace/webapps "$CATALINA_HOME" \
+    && rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
 RUN rm -fr ~/.m2 /tmp/* /var/lib/apt/lists/* \
@@ -51,7 +51,7 @@ COPY config/server.xml /usr/local/tomcat/conf/server.xml
 # Install root filesystem
 COPY ./rootfs /
 
-WORKDIR /dspace
+WORKDIR $DSPACE_HOME
 
 # Build info
 RUN echo "Ubuntu GNU/Linux 16.04 (xenial) image. (`uname -rsv`)" >> /root/.built && \
