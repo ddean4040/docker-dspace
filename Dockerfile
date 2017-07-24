@@ -34,6 +34,8 @@ RUN mkdir -p dspace "$CATALINA_HOME" \
     && curl -fSL "$TOMCAT_TGZ_URL" | tar -xz --strip-components=1 -C "$CATALINA_HOME" \
     && git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
+COPY config/build.properties dspace
+
 RUN cd dspace && mvn -Dmirage2.on=true -Denv=repo.mel.cgiar.org -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package
 
 RUN cd dspace/dspace/target/dspace-installer \
