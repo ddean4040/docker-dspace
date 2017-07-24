@@ -36,7 +36,7 @@ RUN mkdir -p dspace "$CATALINA_HOME" \
 
 COPY config/build.properties dspace
 
-RUN cd dspace && mvn -Dmirage2.on=true -Denv=repo.mel.cgiar.org -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package
+RUN cd dspace && mvn -Dmirage2.on=true -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package
 
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
