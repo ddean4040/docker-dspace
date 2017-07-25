@@ -83,7 +83,6 @@ The command above only installs the `jspui`, `xmlui`, and `rest` web application
 - Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
 - Allow configuration of JAVA_OPTS for JVM memory heap
 - Need to find a way to enable [cron jobs for DSpace maintenance tasks](https://wiki.duraspace.org/display/DSDOC5x/Scheduled+Tasks+via+Cron)
-- Add maven build options for mirage2
 
 # License
 All the code contained in this repository, unless explicitly stated, is
