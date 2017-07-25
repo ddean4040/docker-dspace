@@ -81,9 +81,9 @@ The command above only installs the `jspui`, `xmlui`, and `rest` web application
 # Todo
 
 - Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
-- Allow configuration of JAVA_OPTS for JVM memory heap
 - Need to find a way to enable [cron jobs for DSpace maintenance tasks](https://wiki.duraspace.org/display/DSDOC5x/Scheduled+Tasks+via+Cron)
 - Compass seems to error when creating the CSS styles, including error output inside the CSS itself...
+- The `setup-postgres` script expects the database parameters in `dspace.cfg` to be stock, which breaks in our case if we inject a custom `build.properties` (need to find a better way to do this)
 
 # License
 All the code contained in this repository, unless explicitly stated, is
