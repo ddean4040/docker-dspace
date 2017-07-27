@@ -9,7 +9,7 @@ This image was originally based on the [1science/docker-dspace](https://github.c
 # Usage
 DSpace uses [PostgreSQL](http://www.postgresql.org/) as a database. We can either use a PostgreSQL container or an external database.
 
-## Postgres as a container
+## PostgreSQL as a Container
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
 
 ```console
@@ -38,7 +38,7 @@ $ docker run -itd --name dspace --network=dspace \
         -p 8080:8080 dspace
 ```
 
-## External database  
+## PostgreSQL in an External Database
 To use an external PostgreSQL database you have to set some environment variables:
   - `POSTGRES_DB_HOST` (required): The server host name or ip.
   - `POSTGRES_DB_PORT` (optional): The server port (`5432` by default)
@@ -67,7 +67,7 @@ After few seconds, the various DSpace web applications should be accessible from
 
 Note: The security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.
 
-## Configure webapps installed
+## Configure Installed Webapps
 DSpace consumes a lot of memory and sometimes we don't really need all the DSpace webapps. You can specify which applications to install using an environment variable:
 
 ```console
