@@ -61,7 +61,7 @@ $ docker run -itd --name dspace --network=dspace \
 
 After few seconds, the various DSpace web applications should be accessible from:
   - JSP User Interface: http://localhost:8080/jspui
-  - XML User Interface: http://localhost:8080/xmlui
+  - XML User Interface: http://localhost:8080
   - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
   - REST: http://localhost:8080/rest
 
