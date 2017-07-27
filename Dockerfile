@@ -11,6 +11,7 @@ ENV TOMCAT_TGZ_URL=https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOM
     DSPACE_GIT_URL=https://github.com/CodeObia/DSpace.git \
     DSPACE_GIT_REVISION=5.7-production
 ENV CATALINA_HOME=/usr/local/tomcat DSPACE_HOME=/dspace
+ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8"
 ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
 WORKDIR /tmp
