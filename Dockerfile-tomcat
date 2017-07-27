@@ -27,7 +27,8 @@ RUN apt install -y \
     git \
     imagemagick \
     ghostscript \
-    openjdk-8-jdk-headless
+    openjdk-8-jdk-headless \
+    cron
 
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root.
