@@ -73,9 +73,9 @@ RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
 WORKDIR $DSPACE_HOME
 
 # Build info
-RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built && \
-    echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
-    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built
+RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> "$DSPACE_HOME"/.built && \
+    echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> "$DSPACE_HOME"/.built && \
+    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> "$DSPACE_HOME"/.built
 
 # Change back to dspace user to start Tomcat. This Also means that dspace is
 # the effective user when you get a shell in the container with `docker exec`
