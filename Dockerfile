@@ -59,7 +59,7 @@ RUN cd dspace/dspace/target/dspace-installer \
 RUN mv $CATALINA_HOME/webapps/xmlui $CATALINA_HOME/webapps/ROOT
 
 # Tweak default Tomcat server configuration
-COPY config/server-tomcat8.5.xml /usr/local/tomcat/conf/server.xml
+COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
 # Install root filesystem
 COPY ./rootfs /
