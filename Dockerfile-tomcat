@@ -40,20 +40,25 @@ RUN useradd -r -s /sbin/nologin -m -d "$DSPACE_HOME" dspace \
 # Change to dspace user for build and install
 USER dspace
 
+# Clone DSpace source to $WORKDIR/dspace
 RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
+# Copy customized DSpace build properties
 COPY config/build.properties dspace
 
+# Build DSpace with Mirage 2 enabled, and skip applications we don't use
 RUN cd dspace && mvn -Dmirage2.on=true -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package
 
+# Install compiled applications to $CATALINA_HOME
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
-# rename xmlui app to ROOT so it is available on /
+# Rename xmlui app to ROOT so it is available on /
 RUN mv $CATALINA_HOME/webapps/xmlui $CATALINA_HOME/webapps/ROOT
 
+# Tweak default Tomcat server configuration
 COPY config/server-tomcat8.5.xml /usr/local/tomcat/conf/server.xml
 
 # Install root filesystem
