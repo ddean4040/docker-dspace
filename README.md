@@ -16,7 +16,7 @@ Make sure you build the image first:
 $ docker build -f Dockerfile -t dspace .
 ```
 
-*N.B. this can take anywhere from thirty minutes to several hours due to the amount of packages DSpace's maven build step pulls in.*
+*N.B. this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
 
 ## PostgreSQL as a Container
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
