@@ -9,6 +9,13 @@ This image was originally based on the [1science/docker-dspace](https://github.c
 # Usage
 DSpace uses [PostgreSQL](http://www.postgresql.org/) as a database. We can either use a PostgreSQL container or an external database.
 
+## Build
+Make sure you build the image first:
+
+```console
+$ docker build -f Dockerfile -t dspace .
+```
+
 ## PostgreSQL as a Container
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
 
