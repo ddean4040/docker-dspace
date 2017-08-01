@@ -13,7 +13,7 @@ This image is not currently published on the public Docker hub—you will need t
 $ docker build -f Dockerfile -t dspace .
 ```
 
-*N.B. this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
+*Note: this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
 
 ## Run
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
@@ -34,7 +34,7 @@ And finally, create a DSpace container (specifying the network to use and the na
 $ docker run -itd --name dspace --network=dspace -p 8080:8080 -e POSTGRES_DB_HOST=dspace_db dspace
 ```
 
-By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [Overriding PostgreSQL Connection Parameters](#overriding-postgresql-connection-parameters)).
+By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [PostgreSQL Connection Parameters](#postgresql-connection-parameters)).
 
 After few seconds, the various DSpace web applications should be accessible from:
   - JSP User Interface: http://localhost:8080/jspui
@@ -42,9 +42,35 @@ After few seconds, the various DSpace web applications should be accessible from
   - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
   - REST: http://localhost:8080/rest
 
-*Note: The security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
+*Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
 
-### Overriding PostgreSQL Connection Parameters
+## Environment variables
+This image provides sane defaults for most settings—at least to get the application running in a test environment—but you can change many of those via environment variables. either with `-e` on the Docker command line or in your `docker-compose.yml`.
+
+For example, by providing `-e` on the command line with `docker run`:
+
+```console
+$ docker run -itd --name dspace --network=dspace \
+        -e POSTGRES_DB_HOST=my_host \
+        -e POSTGRES_SCHEMA=my_dspace \
+        -e POSTGRES_USER=my_user \
+        -e POSTGRES_PASSWORD=my_password \
+        -e CATALINA_OPTS="-Xms2048m -Xmx2048m -Dfile.encoding=UTF-8" \
+        -p 8080:8080 dspace
+```
+
+Or inside your `docker-compose.yml` file:
+
+```yaml
+environment:
+  - POSTGRES_DB_HOST=my_host
+  - POSTGRES_SCHEMA=my_dspace
+  - POSTGRES_USER=my_user
+  - POSTGRES_PASSWORD=my_password
+  - CATALINA_OPTS=-Xms2048m -Xmx2048m -Dfile.encoding=UTF-8
+```
+
+### PostgreSQL Connection Parameters
 To use an external PostgreSQL database or override any of the other default settings you have to set some environment variables:
   - `POSTGRES_DB_HOST` (required): The server host name or IP
   - `POSTGRES_DB_PORT` (optional): The server port (`5432` by default)
@@ -54,20 +80,15 @@ To use an external PostgreSQL database or override any of the other default sett
   - `POSTGRES_ADMIN_USER` (optional): The admin user creating the Database and the user (`postgres` by default)
   - `POSTGRES_ADMIN_PASSWORD` (optional): The password of the admin user
 
-Then run the DSpace container with the environment variables specified using `-e`, for example:
+### DSpace Administrator User
+Control the parameters used to create the default DSpace administrator's login account:
+  - `ADMIN_EMAIL` (optional): The DSpace administrator's email address (`devops@1science.com` by default)
+  - `ADMIN_FIRSTNAME` (optional): The DSpace administrator's first name (`DSpace` by default)
+  - `ADMIN_LASTNAME` (optional): The DSpace administrator's last name (`Admin` by default)
+  - `ADMIN_PASSWD` (optional): The DSpace administrator's password (`admin123` by default)
+  - `ADMIN_LANGUAGE` (optional): The DSpace administrator's language (`en` by default)
 
-```console
-$ docker run -itd --name dspace --network=dspace \
-        -e POSTGRES_DB_HOST=my_host \
-        -e POSTGRES_ADMIN_USER=my_admin \
-        -e POSTGRES_ADMIN_PASSWORD=my_admin_password \
-        -e POSTGRES_SCHEMA=my_dspace \
-        -e POSTGRES_USER=my_user \
-        -e POSTGRES_PASSWORD=my_password \
-        -p 8080:8080 dspace
-```
-
-## Configure Installed Webapps
+### Configure Installed Webapps
 DSpace consumes a lot of memory and sometimes we don't really need all the DSpace webapps. You can specify which applications to install using an environment variable:
 
 ```console
@@ -82,7 +103,6 @@ The command above only installs the `jspui`, `xmlui`, and `rest` web application
 
 - Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
 - Need to find a way to enable [cron jobs for DSpace maintenance tasks](https://wiki.duraspace.org/display/DSDOC5x/Scheduled+Tasks+via+Cron): see [cronjobConfiguration](https://github.com/GovernoRegionalAcores/DSpace)
-- Document other environment variables (like `$CATALINA_OPTS` and `$ADMIN_USER`)
 
 ## License
 All the code contained in this repository, unless explicitly stated, is
