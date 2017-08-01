@@ -47,8 +47,8 @@ RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 # Copy customized DSpace build properties
 COPY config/build.properties dspace
 
-# Build DSpace with Mirage 2 enabled, and skip applications we don't use
-RUN cd dspace && mvn -Dmirage2.on=true -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2,\!dspace-jspui package
+# Build DSpace with Mirage 2 enabled
+RUN cd dspace && mvn -Dmirage2.on=true package
 
 # Install compiled applications to $CATALINA_HOME
 RUN cd dspace/dspace/target/dspace-installer \
