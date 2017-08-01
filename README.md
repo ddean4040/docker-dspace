@@ -10,7 +10,7 @@ This image was originally based on the [1science/docker-dspace](https://github.c
 DSpace uses [PostgreSQL](http://www.postgresql.org/) as a database. We can either use a PostgreSQL container or an external database.
 
 ## Build
-Make sure you build the image first:
+This image is not currently published on the public Docker hub, so you will need to build it locally before you can use it:
 
 ```console
 $ docker build -f Dockerfile -t dspace .
@@ -18,7 +18,7 @@ $ docker build -f Dockerfile -t dspace .
 
 *N.B. this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
 
-## PostgreSQL as a Container
+## Run
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
 
 ```console
@@ -37,25 +37,19 @@ And finally, create a DSpace container (specifying the network to use and the na
 $ docker run -itd --name dspace --network=dspace -p 8080:8080 -e POSTGRES_DB_HOST=dspace_db dspace
 ```
 
-By default the database schema is created with the name `dspace` for a user `dspace` with password `dspace`, but it's possible to override the default settings by specifying some environment variables, ie:
+By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [Overriding PostgreSQL Connection Parameters](#overriding-postgresql-connection-parameters)).
 
-```console
-$ docker run -itd --name dspace --network=dspace \
-        -e POSTGRES_SCHEMA=my_dspace \
-        -e POSTGRES_USER=my_user \
-        -e POSTGRES_PASSWORD=my_password \
-        -p 8080:8080 dspace
-```
-
-## PostgreSQL in an External Database
-To use an external PostgreSQL database you have to set some environment variables:
-  - `POSTGRES_DB_HOST` (required): The server host name or ip.
+### Overriding PostgreSQL Connection Parameters
+To use an external PostgreSQL database or override any of the other default settings you have to set some environment variables:
+  - `POSTGRES_DB_HOST` (required): The server host name or IP
   - `POSTGRES_DB_PORT` (optional): The server port (`5432` by default)
   - `POSTGRES_SCHEMA` (optional): The database schema (`dspace` by default)
   - `POSTGRES_USER` (optional): The user used by DSpace (`dspace` by default)
   - `POSTGRES_PASSWORD` (optional): The password of the user used by DSpace (`dspace` by default)
   - `POSTGRES_ADMIN_USER` (optional): The admin user creating the Database and the user (`postgres` by default)
   - `POSTGRES_ADMIN_PASSWORD` (optional): The password of the admin user
+
+Then run the DSpace container with the environment variables specified using `-e`, for example:
 
 ```console
 $ docker run -itd --name dspace --network=dspace \
