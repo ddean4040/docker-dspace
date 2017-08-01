@@ -38,7 +38,7 @@ By default this will create a PostgreSQL database schema called `dspace`, with u
 
 After few seconds, the various DSpace web applications should be accessible from:
   - JSP User Interface: http://localhost:8080/jspui
-  - XML User Interface: http://localhost:8080
+  - XML User Interface: http://localhost:8080/xmlui
   - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
   - REST: http://localhost:8080/rest
 

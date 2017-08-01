@@ -56,9 +56,6 @@ RUN cd dspace/dspace/target/dspace-installer \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
-# Rename xmlui app to ROOT so it is available on /
-RUN mv $CATALINA_HOME/webapps/xmlui $CATALINA_HOME/webapps/ROOT
-
 # Tweak default Tomcat server configuration
 COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
