@@ -10,7 +10,8 @@ ENV DSPACE_VERSION=5.7
 ENV DSPACE_GIT_URL=https://github.com/CodeObia/DSpace.git \
     DSPACE_GIT_REVISION=5.7-production
 ENV DSPACE_HOME=/dspace
-ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8"
+ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
+    MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
 WORKDIR /tmp
