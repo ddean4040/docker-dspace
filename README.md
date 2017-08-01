@@ -89,7 +89,7 @@ Control the parameters used to create the default DSpace administrator's login a
   - `ADMIN_LANGUAGE` (optional): The DSpace administrator's language (`en` by default)
 
 ### Configure Installed Webapps
-DSpace consumes a lot of memory and sometimes we don't really need all the DSpace webapps. You can specify which applications to install using an environment variable:
+Sometimes we don't really need all the DSpace webapps. You can specify which ones to enable using an environment variable:
 
 ```console
 $ docker run -itd --name dspace --network=dspace \
