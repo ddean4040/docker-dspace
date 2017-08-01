@@ -7,7 +7,7 @@
 This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
 
 ## Build
-This image is not currently published on the public Docker hub so you will need to build it locally before you can use it:
+This image is not currently published on the public Docker hub—you will need to build it locally:
 
 ```console
 $ docker build -f Dockerfile -t dspace .
