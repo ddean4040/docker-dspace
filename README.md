@@ -6,11 +6,8 @@
 
 This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
 
-# Usage
-DSpace uses [PostgreSQL](http://www.postgresql.org/) as a database. We can either use a PostgreSQL container or an external database.
-
 ## Build
-This image is not currently published on the public Docker hub, so you will need to build it locally before you can use it:
+This image is not currently published on the public Docker hub so you will need to build it locally before you can use it:
 
 ```console
 $ docker build -f Dockerfile -t dspace .
@@ -39,6 +36,14 @@ $ docker run -itd --name dspace --network=dspace -p 8080:8080 -e POSTGRES_DB_HOS
 
 By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [Overriding PostgreSQL Connection Parameters](#overriding-postgresql-connection-parameters)).
 
+After few seconds, the various DSpace web applications should be accessible from:
+  - JSP User Interface: http://localhost:8080/jspui
+  - XML User Interface: http://localhost:8080
+  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
+  - REST: http://localhost:8080/rest
+
+*Note: The security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
+
 ### Overriding PostgreSQL Connection Parameters
 To use an external PostgreSQL database or override any of the other default settings you have to set some environment variables:
   - `POSTGRES_DB_HOST` (required): The server host name or IP
@@ -62,14 +67,6 @@ $ docker run -itd --name dspace --network=dspace \
         -p 8080:8080 dspace
 ```
 
-After few seconds, the various DSpace web applications should be accessible from:
-  - JSP User Interface: http://localhost:8080/jspui
-  - XML User Interface: http://localhost:8080
-  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
-  - REST: http://localhost:8080/rest
-
-Note: The security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.
-
 ## Configure Installed Webapps
 DSpace consumes a lot of memory and sometimes we don't really need all the DSpace webapps. You can specify which applications to install using an environment variable:
 
@@ -81,12 +78,12 @@ $ docker run -itd --name dspace --network=dspace \
 
 The command above only installs the `jspui`, `xmlui`, and `rest` web applications.
 
-# Todo
+## Todo
 
 - Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
 - Need to find a way to enable [cron jobs for DSpace maintenance tasks](https://wiki.duraspace.org/display/DSDOC5x/Scheduled+Tasks+via+Cron): see [cronjobConfiguration](https://github.com/GovernoRegionalAcores/DSpace)
 
-# License
+## License
 All the code contained in this repository, unless explicitly stated, is
 licensed under ISC license.
 
