@@ -44,8 +44,8 @@ USER dspace
 # Clone DSpace source to $WORKDIR/dspace
 RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
-# Copy customized DSpace build properties
-COPY config/build.properties dspace
+# Enable the Mirage 2 XMLUI theme
+RUN sed -i 's#path="Mirage/"#path="Mirage2/"#' dspace/dspace/config/xmlui.xconf
 
 # Build DSpace with Mirage 2 enabled
 RUN cd dspace && mvn -Dmirage2.on=true package
