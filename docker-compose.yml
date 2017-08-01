@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  database:
+    container_name: dspace_db
+    image: postgres:9.5
+    ports:
+      - 5432:5432
+# The dspace service will use an existing dspace:latest image, otherwise one
+# will be built from the local context (.). The 'image' command is important
+# because it sets the name of the resulting image to be dspace:latest rather
+# than the name of the current directory, ie docker-dspace.
+  dspace:
+    container_name: dspace
+    build: .
+    image: dspace:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    environment:
+      - POSTGRES_DB_HOST=dspace_db
+
+# vim: set sw=2 ts=2:
