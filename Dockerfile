@@ -62,6 +62,9 @@ COPY config/server.xml /usr/local/tomcat/conf/server.xml
 # Install root filesystem
 COPY ./rootfs /
 
+# Copy crontab for DSpace's scheduled maintenance tasks
+COPY ./config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
+
 # Change back to root user for cleanup
 USER root
 
@@ -75,9 +78,6 @@ RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> "
     echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> "$DSPACE_HOME"/.built && \
     echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> "$DSPACE_HOME"/.built
 
-# Change back to dspace user to start Tomcat. This Also means that dspace is
-# the effective user when you get a shell in the container with `docker exec`
-USER dspace
-
 EXPOSE 8080
+# will run `start-dspace` script as root, then drop to dspace user
 CMD ["start-dspace"]

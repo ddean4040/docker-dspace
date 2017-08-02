@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Start the cron service for DSpace's scheduled maintenance tasks
+# See: /etc/cron.d/dspace-maintenance-tasks
+service cron start
+
+# Drop root permissions to finish DSpace configuration / startup
+su - dspace
+
 POSTGRES_DB_HOST=${POSTGRES_DB_HOST:-$POSTGRES_PORT_5432_TCP_ADDR}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-$POSTGRES_PORT_5432_TCP_PORT}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-5432}
