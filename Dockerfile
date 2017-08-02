@@ -75,7 +75,9 @@ WORKDIR $DSPACE_HOME
 # Build info
 RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built && \
     echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
-    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built
+    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built && \
+    echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built && \
+    echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
 
 EXPOSE 8080
 # will run `start-dspace` script as root, then drop to dspace user
