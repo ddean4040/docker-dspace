@@ -60,10 +60,10 @@ RUN cd dspace/dspace/target/dspace-installer \
 COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
 # Install root filesystem
-COPY ./rootfs /
+COPY rootfs /
 
 # Copy crontab for DSpace's scheduled maintenance tasks
-COPY ./config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
+COPY config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
 
 # Change back to root user for cleanup
 USER root
