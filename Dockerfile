@@ -22,7 +22,6 @@ RUN apt update && apt upgrade -y -o Dpkg::Options::="--force-confold"
 
 # Install runtime and dependencies
 RUN apt install -y \
-    vim \
     ant \
     maven \
     postgresql-client \
@@ -69,7 +68,7 @@ COPY rootfs /
 COPY config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
-    && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
+    && apt remove -y ant maven git openjdk-8-jdk-headless vim && apt -y autoremove
 
 WORKDIR $DSPACE_HOME
 
