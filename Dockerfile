@@ -66,7 +66,7 @@ COPY ./rootfs /
 USER root
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
-    && apt remove -y ant maven git && apt -y autoremove
+    && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
 
 WORKDIR $DSPACE_HOME
 
