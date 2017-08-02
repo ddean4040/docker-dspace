@@ -56,6 +56,9 @@ RUN cd dspace/dspace/target/dspace-installer \
     && rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
+# Change back to root user for cleanup
+USER root
+
 # Tweak default Tomcat server configuration
 COPY config/server.xml /usr/local/tomcat/conf/server.xml
 
@@ -64,9 +67,6 @@ COPY rootfs /
 
 # Copy crontab for DSpace's scheduled maintenance tasks
 COPY config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
-
-# Change back to root user for cleanup
-USER root
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
