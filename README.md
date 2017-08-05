@@ -20,8 +20,6 @@ Debian GNU/Linux 9.1 image. (Linux 4.9.36-moby #1 SMP Wed Jul 12 15:29:07 UTC 20
 - with DSpace 5.7 on Tomcat 8.5.16
 ```
 
-
-
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
 This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
