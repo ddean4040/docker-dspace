@@ -34,7 +34,7 @@ RUN apt install -y \
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root. Also
 # change ownership of DSpace and Tomcat install directories.
-RUN useradd -r -s /sbin/nologin -m -d "$DSPACE_HOME" dspace \
+RUN useradd -r -s /bin/bash -m -d "$DSPACE_HOME" dspace \
     && chown -R dspace:dspace "$DSPACE_HOME" "$CATALINA_HOME"
 
 # Change to dspace user for build and install
