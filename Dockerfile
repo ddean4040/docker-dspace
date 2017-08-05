@@ -64,8 +64,6 @@ COPY config/server.xml /usr/local/tomcat/conf/server.xml
 # Install root filesystem
 COPY rootfs /
 
-# Copy crontab for DSpace's scheduled maintenance tasks
-COPY config/dspace-maintenance-tasks /etc/cron.d/dspace-maintenance-tasks
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove

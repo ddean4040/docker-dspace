@@ -1,0 +1,5 @@
+#
+# Start the DSpace handle server
+#
+
+@reboot dspace /dspace/bin/start-handle-server
