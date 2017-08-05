@@ -64,6 +64,9 @@ COPY config/server.xml /usr/local/tomcat/conf/server.xml
 # Install root filesystem
 COPY rootfs /
 
+# Make sure the crontabs use the correct DSpace directory
+RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks \
+    && sed -i "s#/dspace#$DSPACE_HOME#" /etc/cron.d/dspace-handle-server
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
