@@ -120,7 +120,6 @@ The command above only installs the `jspui`, `xmlui`, and `rest` web application
 ## Todo
 
 - Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
-- Need to find a way to enable [cron jobs for DSpace maintenance tasks](https://wiki.duraspace.org/display/DSDOC5x/Scheduled+Tasks+via+Cron): see [cronjobConfiguration](https://github.com/GovernoRegionalAcores/DSpace)
 - Add notes about getting a shell inside the container
 
 ## License
