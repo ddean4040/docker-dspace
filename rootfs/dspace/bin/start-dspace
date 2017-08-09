@@ -4,9 +4,6 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
-# start the handle server
-su - dspace -c $DSPACE_HOME/bin/start-handle-server
-
 POSTGRES_DB_HOST=${POSTGRES_DB_HOST:-$POSTGRES_PORT_5432_TCP_ADDR}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-$POSTGRES_PORT_5432_TCP_PORT}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-5432}

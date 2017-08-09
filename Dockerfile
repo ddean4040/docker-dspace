@@ -66,7 +66,7 @@ COPY rootfs /
 
 # Docker's COPY always sets ownership to the root user, so we need to reset some
 # of the files we copied to $DSPACE_HOME above back to the dspace user
-RUN chown -R dspace:dspace $DSPACE_HOME/bin $DSPACE_HOME/handle-server
+RUN chown -R dspace:dspace $DSPACE_HOME/bin
 
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
