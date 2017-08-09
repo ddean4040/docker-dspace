@@ -62,7 +62,7 @@ After few seconds, the various DSpace web applications should be accessible from
 
 *Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
 
-## Environment variables
+## Environment Variables
 This image provides sane defaults for most settings but you can override many of those via environment variables, either with `-e` on the Docker command line or in your `docker-compose.yml`.
 
 For example, by providing `-e` on the command line with `docker run`:
