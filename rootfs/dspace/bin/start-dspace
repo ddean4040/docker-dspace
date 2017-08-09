@@ -4,11 +4,8 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
-# Drop root permissions to finish DSpace configuration / startup
-su - dspace
-
 # start the handle server
-$DSPACE_HOME/bin/start-handle-server
+su - dspace -c $DSPACE_HOME/bin/start-handle-server
 
 POSTGRES_DB_HOST=${POSTGRES_DB_HOST:-$POSTGRES_PORT_5432_TCP_ADDR}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-$POSTGRES_PORT_5432_TCP_PORT}
@@ -34,5 +31,5 @@ if [ -n "$DSPACE_WEBAPPS" ]; then
     done
 fi
 
-# Start Tomcat
-exec catalina.sh run
+# Start Tomcat (with full path to catalina.sh, because su resets our $PATH)
+exec su - dspace -c "$CATALINA_HOME/bin/catalina.sh run"
