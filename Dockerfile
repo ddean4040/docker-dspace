@@ -6,13 +6,13 @@ FROM tomcat:8.5
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
-    DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-5.7 \
-    DSPACE_HOME=/dspace \
-    CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
-    MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1" \
-    PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
+ENV DSPACE_VERSION=5.7
+ENV DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-5.7
+ENV DSPACE_HOME=/dspace
+ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
+    MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
 WORKDIR /tmp
 
