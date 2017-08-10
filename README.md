@@ -15,9 +15,9 @@
                 / /_/ /___/ / /_/ / /_/ / /__/  __/
                /_____//____/ .___/\__,_/\___/\___/
                           /_/
-Debian GNU/Linux 9.1 image. (Linux 4.9.36-moby #1 SMP Wed Jul 12 15:29:07 UTC 2017)
+Debian GNU/Linux 9.1 image. (Linux 4.4.80-mainline-rev1 #1 SMP Mon Aug 7 02:42:53 UTC 2017)
 - with OpenJDK Runtime Environment (build 1.8.0_141-8u141-b15-1~deb9u1-b15)
-- with DSpace 5.7 on Tomcat 8.5.16
+- with DSpace 5.7 on Tomcat 8.5.20
 ```
 
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
