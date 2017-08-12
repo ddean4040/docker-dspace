@@ -65,8 +65,9 @@ COPY config/server.xml /usr/local/tomcat/conf/server.xml
 COPY rootfs /
 
 # Docker's COPY instruction always sets ownership to the root user, so we need
-# to make sure we reset the permissions of $DSPACE_HOME back to the dspace user
-RUN chown -R dspace:dspace $DSPACE_HOME
+# to explicitly change ownership of those files and directories that we copied
+# from rootfs.
+RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
