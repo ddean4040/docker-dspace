@@ -43,7 +43,7 @@ $ docker network create dspace
 Second, we have to create a PostgreSQL container (specifying the network to use):
 
 ```console
-$ docker run -itd --name dspace_db --network=dspace -p 5432:5432 postgres:9.5
+$ docker run -itd --name dspace_db --network=dspace -p 5432:5432 postgres:9.5-alpine
 ```
 
 And finally, create a DSpace container (specifying the network to use and the name of the PostgreSQL container):
