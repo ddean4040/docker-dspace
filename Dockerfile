@@ -59,7 +59,7 @@ RUN cd dspace/dspace/target/dspace-installer \
 USER root
 
 # Tweak default Tomcat server configuration
-COPY config/server.xml /usr/local/tomcat/conf/server.xml
+COPY config/server.xml "$CATALINA_HOME"/conf/server.xml
 
 # Install root filesystem
 COPY rootfs /
