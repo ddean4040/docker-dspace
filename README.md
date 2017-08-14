@@ -123,11 +123,6 @@ $ docker run -itd --name dspace --network=dspace \
 
 The command above only installs the `jspui`, `xmlui`, and `rest` web applications.
 
-## Todo
-
-- Customize Tomcat connector to use `proxy_port`, `secure`, and `scheme`?
-- Add notes about getting a shell inside the container
-
 ## License
 All the code contained in this repository, unless explicitly stated, is
 licensed under ISC license.
