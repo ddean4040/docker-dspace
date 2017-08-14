@@ -5,6 +5,14 @@
 FROM tomcat:8.5
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
+# Allow custom DSpace hostname at build time (default to localhost if undefined)
+# To override, pass --build-arg DSPACE_HOSTNAME=repo.example.org to docker build
+ARG DSPACE_HOSTNAME=localhost
+# Cater for environments where Tomcat is being reverse proxied via another HTTP
+# server like nginx on port 80, for example. DSpace needs to know its publicly
+# accessible URL for various places where it writes its own URL.
+ARG DSPACE_PROXY_PORT=8080
+
 # Environment variables
 ENV DSPACE_VERSION=5.7 \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
@@ -43,6 +51,14 @@ USER dspace
 # Clone DSpace source to $WORKDIR/dspace
 RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
+# Copy customized build.properties (taken straight from the DSpace source
+# tree and modified only to add bits to make it easier to replace hostname
+# and port below)
+COPY config/build.properties dspace
+
+# Set DSpace hostname and port in build.properties
+RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
+
 # Enable the Mirage 2 XMLUI theme
 RUN sed -i 's#path="Mirage/"#path="Mirage2/"#' dspace/dspace/config/xmlui.xconf
 
@@ -60,6 +76,9 @@ USER root
 
 # Tweak default Tomcat server configuration
 COPY config/server.xml "$CATALINA_HOME"/conf/server.xml
+
+# Adjust the Tomcat connector's proxyPort
+RUN sed -i "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" "$CATALINA_HOME"/conf/server.xml
 
 # Install root filesystem
 COPY rootfs /

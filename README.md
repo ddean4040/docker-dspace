@@ -33,6 +33,12 @@ $ docker build -f Dockerfile -t dspace .
 
 *Note: this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
 
+By default this container is set up to run on `localhost` in a development environment. If you need to run this in production you can override the hostname and proxy port—for example, if you're reverse proxying to Tomcat via nginx on port 80—at build time:
+
+```console
+$ docker build -f Dockerfile -t dspace --build-arg DSPACE_HOSTNAME=repo.example.org --build-arg DSPACE_PROXY_PORT=80 .
+```
+
 ## Run
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
 
