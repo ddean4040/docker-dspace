@@ -14,9 +14,9 @@ ARG DSPACE_HOSTNAME=localhost
 ARG DSPACE_PROXY_PORT=8080
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
+ENV DSPACE_VERSION=6.1 \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-5.7 \
+    DSPACE_GIT_REVISION=dspace-6.1 \
     DSPACE_HOME=/dspace
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
     MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1" \
@@ -55,9 +55,11 @@ RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 # tree and modified only to add bits to make it easier to replace hostname
 # and port below)
 COPY config/build.properties dspace
+COPY config/local.cfg dspace/dspace/config
 
 # Set DSpace hostname and port in build.properties
 RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
+RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/dspace/config/local.cfg
 
 # Enable the Mirage 2 XMLUI theme
 RUN sed -i 's#path="Mirage/"#path="Mirage2/"#' dspace/dspace/config/xmlui.xconf
