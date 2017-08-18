@@ -103,6 +103,11 @@ RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /
     echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built && \
     echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
 
+# Link the native APR library into java.library.path
+RUN ln -s /usr/local/tomcat/native-jni-lib /usr/lib/jni
+
+VOLUME ["/dspace/assetstore"]
+
 EXPOSE 8080
 # will run `start-dspace` script as root, then drop to dspace user
 CMD ["start-dspace"]
