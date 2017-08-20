@@ -25,7 +25,7 @@ ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
 WORKDIR /tmp
 
 # Install runtime and dependencies
-RUN apt update && apt install -y \
+RUN apt-get update && apt-get install -y \
     ant \
     maven \
     postgresql-client \
@@ -88,7 +88,7 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
-    && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
+    && apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
 
 WORKDIR $DSPACE_HOME
 
