@@ -24,12 +24,8 @@ ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
 
 WORKDIR /tmp
 
-# Update the operating system userland, see notes on baseimage-docker
-# See: https://github.com/phusion/baseimage-docker#upgrading_os
-RUN apt update && apt upgrade -y -o Dpkg::Options::="--force-confold"
-
 # Install runtime and dependencies
-RUN apt install -y \
+RUN apt update && apt install -y \
     ant \
     maven \
     postgresql-client \
