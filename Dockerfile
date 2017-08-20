@@ -3,7 +3,7 @@
 #
 
 FROM tomcat:8.5
-MAINTAINER Alan Orth <alan.orth@gmail.com>
+LABEL maintainer "Alan Orth <alan.orth@gmail.com>"
 
 # Allow custom DSpace hostname at build time (default to localhost if undefined)
 # To override, pass --build-arg DSPACE_HOSTNAME=repo.example.org to docker build
