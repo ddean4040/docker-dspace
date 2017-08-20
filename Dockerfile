@@ -88,8 +88,8 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
 
-RUN rm -rf "$DSPACE_HOME/.m2" /tmp/* \
-    && apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
+RUN rm -rf "$DSPACE_HOME/.m2" /tmp/*; \
+    apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
 
 WORKDIR $DSPACE_HOME
 
