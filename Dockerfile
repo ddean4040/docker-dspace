@@ -33,7 +33,8 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     ghostscript \
     openjdk-8-jdk-headless \
-    cron
+    cron \
+    && rm -rf /var/lib/apt/lists/*
 
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root. Also
@@ -87,7 +88,7 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
 
-RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
+RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* \
     && apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
 
 WORKDIR $DSPACE_HOME
