@@ -65,7 +65,7 @@ RUN cd dspace && mvn -Dmirage2.on=true package
 # Install compiled applications to $CATALINA_HOME
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
-    && rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
+    && rm -rf "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
 # Change back to root user for cleanup
@@ -88,7 +88,7 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
 
-RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* \
+RUN rm -rf "$DSPACE_HOME/.m2" /tmp/* \
     && apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
 
 WORKDIR $DSPACE_HOME
