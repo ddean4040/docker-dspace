@@ -27,6 +27,9 @@ SCHEMA_EXISTS=$(psql -h "$POSTGRES_DB_HOST" -p "$POSTGRES_DB_PORT" -U "$POSTGRES
 if [ $SCHEMA_EXISTS -eq 1 ]; then
   psql -h "$POSTGRES_DB_HOST" -p "$POSTGRES_DB_PORT" -d postgres -U "$POSTGRES_ADMIN_USER" -c "CREATE DATABASE $POSTGRES_SCHEMA;" 2>&1 > /dev/null
   echo "Database '${POSTGRES_SCHEMA}' created"
+  psql -h "$POSTGRES_DB_HOST" -p "$POSTGRES_DB_PORT" -d $POSTGRES_SCHEMA -U "$POSTGRES_ADMIN_USER" -c "CREATE EXTENSION pgcrypto;" 2>&1 > /dev/null
+  echo "Enabled pgcrypto extension"
+
 fi
 
 # Create database user if it does not exist
