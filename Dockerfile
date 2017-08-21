@@ -12,6 +12,8 @@ ARG DSPACE_HOSTNAME=localhost
 # server like nginx on port 80, for example. DSpace needs to know its publicly
 # accessible URL for various places where it writes its own URL.
 ARG DSPACE_PROXY_PORT=8080
+# Allow user to specify which theme to build with the image
+ARG THEME="Mirage2"
 
 # Environment variables
 ENV DSPACE_VERSION=5.7 \
@@ -60,7 +62,11 @@ COPY config/build.properties dspace
 RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
 
 # Enable the Mirage 2 XMLUI theme
-RUN sed -i 's#path="Mirage/"#path="Mirage2/"#' dspace/dspace/config/xmlui.xconf
+RUN sed -i 's#path="Mirage/"#path="'$THEME'/"#' dspace/dspace/config/xmlui.xconf
+
+# Install user-supplied themes - long-term these should be included
+#  in a custom DSpace git repo specified in ENV
+COPY mirage2-themes dspace/dspace/modules/xmlui-mirage2/src/main/webapp/themes
 
 # Build DSpace with Mirage 2 enabled
 RUN cd dspace && mvn -Dmirage2.on=true package
