@@ -1,5 +1,8 @@
 version: '2'
 
+volumes:
+  assetstore:
+
 services:
   database:
     container_name: dspace_db
@@ -10,12 +13,17 @@ services:
 # than the name of the current directory, ie docker-dspace.
   dspace:
     container_name: dspace
-    build: .
+    build: 
+      context: .
+      args:
+        DSPACE_THEME: Mirage2
     image: dspace:latest
     ports:
       - 8080:8080
     depends_on:
       - database
+    volumes:
+      - assetstore:/dspace/assetstore
     environment:
       - POSTGRES_DB_HOST=dspace_db
 
