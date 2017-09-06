@@ -13,13 +13,14 @@ ARG DSPACE_HOSTNAME=localhost
 # accessible URL for various places where it writes its own URL.
 ARG DSPACE_PROXY_PORT=8080
 # Allow user to specify which theme to build with the image
-ARG THEME="Mirage2"
+ARG DSPACE_THEME="Mirage2"
 
 # Environment variables
 ENV DSPACE_VERSION=5.7 \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
     DSPACE_GIT_REVISION=dspace-5.7 \
-    DSPACE_HOME=/dspace
+    DSPACE_HOME=/dspace \
+    DSPACE_THEME=$DSPACE_THEME
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
     MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1" \
     PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
@@ -39,7 +40,8 @@ RUN apt install -y \
     imagemagick \
     ghostscript \
     openjdk-8-jdk-headless \
-    cron
+    cron \
+    xmlstarlet
 
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root. Also
@@ -62,7 +64,7 @@ COPY config/build.properties dspace
 RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
 
 # Enable the Mirage 2 XMLUI theme
-RUN sed -i 's#path="Mirage/"#path="'$THEME'/"#' dspace/dspace/config/xmlui.xconf
+RUN sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' dspace/dspace/config/xmlui.xconf
 
 # Install user-supplied themes - long-term these should be included
 #  in a custom DSpace git repo specified in ENV
