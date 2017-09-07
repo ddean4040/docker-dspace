@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+CFG_THEME="/usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/local.cfg"
+
+if [ ! -f $CFG_THEME ]; then
+  echo "No custom configurations found in $DSPACE_THEME -- skipping import"
+  exit 0
+fi
+
+if [ $((${DSPACE_VERSION:0:1}+0)) -lt 6 ]; then
+  # DSpace 5 or below - Search dspace.cfg file and merge settings from theme's local.cfg
+  CFG_DSPACE="$DSPACE_HOME/config/dspace.cfg"
+else
+  # DSpace 6 or above - Search local.cfg and merge settings from theme's local.cfg
+  CFG_DSPACE="$DSPACE_HOME/config/local.cfg"
+fi
+
+while read linelocal; do
+  if [[ $linelocal != "" ]]; then
+    settingkey=$(echo $linelocal | sed -r "s/(.*)[[:space:]]*=[[:space:]]*(.*)/\1/")
+    settingval=$(echo $linelocal | sed -r "s/(.*)[[:space:]]*=[[:space:]]*(.*)/\2/")
+    echo "Key is: $settingkey"
+    echo "Value is: $settingval"
+    if grep -q $settingkey $CFG_DSPACE; then
+      # Found this setting - change the property
+      sed -i -re "s/(#?)$settingkey[[:space:]]*= (.*)/$settingkey = $settingval/" $CFG_DSPACE
+    else
+      # Didn't find this setting - add it to the end
+      echo $linelocal >> $CFG_DSPACE
+    fi
+  fi
+done <$CFG_THEME
+

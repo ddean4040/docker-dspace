@@ -16,6 +16,7 @@ if [ -n $POSTGRES_DB_HOST -a -n $POSTGRES_DB_PORT ]; then
 fi
 
 customize-xmlui
+customize-config
 
 # Remove unused webapps
 # see https://wiki.duraspace.org/display/DSDOC5x/Performance+Tuning+DSpace
