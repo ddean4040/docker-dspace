@@ -55,6 +55,20 @@ USER dspace
 # Clone DSpace source to $WORKDIR/dspace
 RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
 
+# Inject a dependency into the pom.xml for Maven 2.7+
+RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
+        -s "/x:project/x:build/x:pluginManagement/x:plugins/x:plugin[starts-with(x:artifactId,'maven-resources-plugin') and x:version > 2.6]" \
+        -t elem -n "dependencies" \
+        -s "/x:project/x:build/x:pluginManagement/x:plugins/x:plugin[starts-with(x:artifactId,'maven-resources-plugin') and x:version > 2.6]/dependencies" \
+        -t elem -n "dependency" \
+        -s "/x:project/x:build/x:pluginManagement/x:plugins/x:plugin[starts-with(x:artifactId,'maven-resources-plugin') and x:version > 2.6]/dependencies/dependency" \
+        -t elem -n "groupId" -v "org.apache.maven.shared" \
+        -s "/x:project/x:build/x:pluginManagement/x:plugins/x:plugin[starts-with(x:artifactId,'maven-resources-plugin') and x:version > 2.6]/dependencies/dependency" \
+        -t elem -n "artifactId" -v "maven-filtering" \
+        -s "/x:project/x:build/x:pluginManagement/x:plugins/x:plugin[starts-with(x:artifactId,'maven-resources-plugin') and x:version > 2.6]/dependencies/dependency" \
+        -t elem -n "version" -v "1.3" \
+        dspace/pom.xml
+
 # Copy customized build.properties (taken straight from the DSpace source
 # tree and modified only to add bits to make it easier to replace hostname
 # and port below)
