@@ -43,6 +43,10 @@ RUN apt install -y \
     cron \
     xmlstarlet
 
+# Disable assistive technology to fix issue with filter-media command and headless JDK
+RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properties
+# TODO: try this CATALINA_OPT argument instead: -Djava.awt.headless=true
+
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root. Also
 # change ownership of DSpace and Tomcat install directories.
@@ -112,6 +116,9 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
+
+# Enable PDF thumbnails
+RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg
 
 RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
     && apt remove -y ant maven git openjdk-8-jdk-headless && apt -y autoremove
