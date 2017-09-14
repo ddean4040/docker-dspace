@@ -39,7 +39,24 @@ By default this container is set up to run on `localhost` in a development envir
 $ docker build -f Dockerfile -t dspace --build-arg DSPACE_HOSTNAME=repo.example.org --build-arg DSPACE_PROXY_PORT=80 .
 ```
 
-## Run
+## Running With Docker Compose
+Docker Compose simplifies the running of software stacks where you have several components in different containers that interact with eachother by allowing you to specify dependencies, environment variables, network settings, etc. Assuming you have built the `dspace` image above you should be able to bring up a working DSpace installation simply by typing:
+
+```console
+$ docker-compose up -d
+```
+
+By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [PostgreSQL Connection Parameters](#postgresql-connection-parameters)).
+
+After few seconds, the various DSpace web applications should be accessible from:
+  - JSP User Interface: http://localhost:8080/jspui
+  - XML User Interface: http://localhost:8080/xmlui
+  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
+  - REST: http://localhost:8080/rest
+
+*Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
+
+## Runing Manually
 First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
 
 ```console
@@ -57,16 +74,6 @@ And finally, create a DSpace container (specifying the network to use and the na
 ```console
 $ docker run -itd --name dspace --network=dspace -p 8080:8080 -e POSTGRES_DB_HOST=dspace_db dspace
 ```
-
-By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [PostgreSQL Connection Parameters](#postgresql-connection-parameters)).
-
-After few seconds, the various DSpace web applications should be accessible from:
-  - JSP User Interface: http://localhost:8080/jspui
-  - XML User Interface: http://localhost:8080/xmlui
-  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
-  - REST: http://localhost:8080/rest
-
-*Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
 
 ## Environment Variables
 This image provides sane defaults for most settings but you can override many of those via environment variables, either with `-e` on the Docker command line or in your `docker-compose.yml`.
