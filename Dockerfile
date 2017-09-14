@@ -14,9 +14,9 @@ ARG DSPACE_HOSTNAME=localhost
 ARG DSPACE_PROXY_PORT=8080
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
+ENV DSPACE_VERSION=5.8 \
     DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-5.7 \
+    DSPACE_GIT_REVISION=dspace-5.8 \
     DSPACE_HOME=/dspace
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
     MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1" \
