@@ -21,6 +21,9 @@ customize-config
 # Copy any custom Spring files from your theme into the DSpace spring folder
 cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/* $DSPACE_HOME/config/spring/
 
+# Try to start the Handle server
+su - dspace -c "DSPACE_HOME=$DSPACE_HOME RUN_HDL=$RUN_HDL maybe-start-handle-server"
+
 # Remove unused webapps
 # see https://wiki.duraspace.org/display/DSDOC5x/Performance+Tuning+DSpace
 if [ -n "$DSPACE_WEBAPPS" ]; then
