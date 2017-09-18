@@ -2,8 +2,15 @@
 # DSpace image - multistage build
 #
 
+#
+# First step - Build DSpace
+#
+
 FROM openjdk:8-jre AS builder
 MAINTAINER Alan Orth <alan.orth@gmail.com>
+
+# Use a custom site name
+ARG DSPACE_NAME="DSpace at My University"
 
 # Allow custom DSpace hostname at build time (default to localhost if undefined)
 # To override, pass --build-arg DSPACE_HOSTNAME=repo.example.org to docker build
@@ -17,10 +24,24 @@ ARG DSPACE_PROXY_PORT=8080
 # Allow custom Mirage2-based theme
 ARG DSPACE_THEME=Mirage2
 
+# Use a custom handle server prefix
+ARG HANDLE_PREFIX=123456789
+
+# Set mail server info
+ARG MAIL_SERVER=smtp.example.com
+ARG MAIL_USERNAME=""
+ARG MAIL_PASSWORD=""
+ARG MAIL_PORT=25
+ARG MAIL_FROM_ADDR="dspace-noreply@myu.edu"
+ARG MAIL_FEEDBACK_ADDR="dspace-help@myu.edu"
+ARG MAIL_ADMIN_ADDR="dspace-help@myu.edu"
+ARG MAIL_ALERT_ADDR=""
+ARG MAIL_REG_ADDR=""
+
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
-    DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-$DSPACE_VERSION \
+ENV DSPACE_VERSION=5.7
+ENV DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-${DSPACE_VERSION} \
     DSPACE_HOME=/dspace \
     DSPACE_THEME=$DSPACE_THEME
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
@@ -74,11 +95,22 @@ RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
 # tree and modified only to add bits to make it easier to replace hostname
 # and port below)
 COPY config/build.properties dspace
-COPY config/local.cfg dspace/dspace/config
 
-# Set DSpace hostname and port in build.properties
-RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
-RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/dspace/config/local.cfg
+# Set Custom values in build.properties
+RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
+           -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+           -e "s/DSPACE_NAME/$DSPACE_NAME/" \
+           -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+           -e "s/MAIL_SERVER/$MAIL_SERVER/" \
+           -e "s/MAIL_USERNAME/$MAIL_USERNAME/" \
+           -e "s/MAIL_PASSWORD/$MAIL_PASSWORD/" \
+           -e "s/MAIL_PORT/$MAIL_PORT/" \
+           -e "s/MAIL_FROM_ADDR/$MAIL_FROM_ADDR/" \
+           -e "s/MAIL_FEEDBACK_ADDR/$MAIL_FEEDBACK_ADDR/" \
+           -e "s/MAIL_ADMIN_ADDR/$MAIL_ADMIN_ADDR/" \
+           -e "s/MAIL_ALERT_ADDR/$MAIL_ALERT_ADDR/" \
+           -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
+    dspace/build.properties
 
 # Enable the Mirage 2 XMLUI theme
 RUN sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' dspace/dspace/config/xmlui.xconf
@@ -95,7 +127,7 @@ RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps
 
 #
-# Copy the compiled DSpace files to a Tomcat system
+# Second step - create a runner image from the components we built in the first step
 #
 
 FROM tomcat:8.5 AS dspace
@@ -117,7 +149,15 @@ ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
     RUN_HDL=no
 
 WORKDIR /tmp
+
+RUN useradd -r -s /bin/bash -m -d "$DSPACE_HOME" dspace
+
 COPY --from=builder $DSPACE_HOME $DSPACE_HOME
+
+RUN chown -R dspace:dspace "$DSPACE_HOME" "$CATALINA_HOME" \
+    && rm -fr "$CATALINA_HOME/webapps" \
+    && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
+    && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
 # Install runtime and dependencies
 RUN apt-get update \
@@ -128,17 +168,6 @@ RUN apt-get update \
     cron \
     xmlstarlet \
     && rm -rf /var/lib/apt
-
-RUN useradd -r -s /bin/bash -m -d "$DSPACE_HOME" dspace \
-    && chown -R dspace:dspace "$DSPACE_HOME" "$CATALINA_HOME"
-
-USER dspace
-
-RUN rm -fr "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
-    && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
-
-# Change back to root user for cleanup
-USER root
 
 # Tweak default Tomcat server configuration
 COPY config/server.xml "$CATALINA_HOME"/conf/server.xml
@@ -157,6 +186,10 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/* \
 
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
+
+# Disable assistive technology to fix issue with filter-media command and headless JDK
+RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properties
+# TODO: try this CATALINA_OPT argument instead: -Djava.awt.headless=true
 
 # Enable PDF thumbnails
 RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg

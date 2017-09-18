@@ -5,20 +5,39 @@
 FROM tomcat:8.5
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
+# Use a custom site name
+ARG DSPACE_NAME="DSpace at My University"
+
 # Allow custom DSpace hostname at build time (default to localhost if undefined)
 # To override, pass --build-arg DSPACE_HOSTNAME=repo.example.org to docker build
 ARG DSPACE_HOSTNAME=localhost
+
 # Cater for environments where Tomcat is being reverse proxied via another HTTP
 # server like nginx on port 80, for example. DSpace needs to know its publicly
 # accessible URL for various places where it writes its own URL.
 ARG DSPACE_PROXY_PORT=8080
-# Allow user to specify which theme to build with the image
-ARG DSPACE_THEME="Mirage2"
+
+# Allow custom Mirage2-based theme
+ARG DSPACE_THEME=Mirage2
+
+# Use a custom handle server prefix
+ARG HANDLE_PREFIX=123456789
+
+# Set mail server info
+ARG MAIL_SERVER=smtp.example.com
+ARG MAIL_USERNAME=""
+ARG MAIL_PASSWORD=""
+ARG MAIL_PORT=25
+ARG MAIL_FROM_ADDR="dspace-noreply@myu.edu"
+ARG MAIL_FEEDBACK_ADDR="dspace-help@myu.edu"
+ARG MAIL_ADMIN_ADDR="dspace-help@myu.edu"
+ARG MAIL_ALERT_ADDR=""
+ARG MAIL_REG_ADDR=""
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
-    DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-5.7 \
+ENV DSPACE_VERSION=5.7
+ENV DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-${DSPACE_VERSION} \
     DSPACE_HOME=/dspace \
     DSPACE_THEME=$DSPACE_THEME
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
@@ -26,10 +45,6 @@ ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
     PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
 
 WORKDIR /tmp
-
-# Update the operating system userland, see notes on baseimage-docker
-# See: https://github.com/phusion/baseimage-docker#upgrading_os
-RUN apt update && apt upgrade -y -o Dpkg::Options::="--force-confold"
 
 # Install runtime and dependencies
 RUN apt install -y \
@@ -78,8 +93,21 @@ RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
 # and port below)
 COPY config/build.properties dspace
 
-# Set DSpace hostname and port in build.properties
-RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties
+# Set Custom values in build.properties
+RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
+           -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+           -e "s/DSPACE_NAME/$DSPACE_NAME/" \
+           -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+           -e "s/MAIL_SERVER/$MAIL_SERVER/" \
+           -e "s/MAIL_USERNAME/$MAIL_USERNAME/" \
+           -e "s/MAIL_PASSWORD/$MAIL_PASSWORD/" \
+           -e "s/MAIL_PORT/$MAIL_PORT/" \
+           -e "s/MAIL_FROM_ADDR/$MAIL_FROM_ADDR/" \
+           -e "s/MAIL_FEEDBACK_ADDR/$MAIL_FEEDBACK_ADDR/" \
+           -e "s/MAIL_ADMIN_ADDR/$MAIL_ADMIN_ADDR/" \
+           -e "s/MAIL_ALERT_ADDR/$MAIL_ALERT_ADDR/" \
+           -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
+    dspace/build.properties
 
 # Enable the Mirage 2 XMLUI theme
 RUN sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' dspace/dspace/config/xmlui.xconf
@@ -112,7 +140,8 @@ COPY rootfs /
 # Docker's COPY instruction always sets ownership to the root user, so we need
 # to explicitly change ownership of those files and directories that we copied
 # from rootfs.
-RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
+RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/* \
+  && chown -R dspace:dspace $DSPACE_HOME/handle-server
 
 # Make sure the crontab uses the correct DSpace directory
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
@@ -137,6 +166,6 @@ RUN ln -s /usr/local/tomcat/native-jni-lib /usr/lib/jni
 
 VOLUME ["/dspace/assetstore"]
 
-EXPOSE 8080
+EXPOSE 8080 8000 2641
 # will run `start-dspace` script as root, then drop to dspace user
 CMD ["start-dspace"]
