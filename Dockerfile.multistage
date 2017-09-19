@@ -126,6 +126,9 @@ RUN cd dspace && mvn -Dmirage2.on=true package
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps
 
+# Clean up the DSpace folder
+RUN rm -rf "$DSPACE_HOME/.m2"
+
 #
 # Second step - create a runner image from the components we built in the first step
 #
@@ -194,7 +197,7 @@ RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properti
 # Enable PDF thumbnails
 RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg
 
-RUN rm -fr "$DSPACE_HOME/.m2" /tmp/* /var/lib/apt/lists/* \
+RUN rm -fr /tmp/* /var/lib/apt/lists/* \
     && apt -y autoremove
 
 WORKDIR $DSPACE_HOME
