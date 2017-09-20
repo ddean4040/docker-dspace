@@ -21,6 +21,9 @@ ARG DSPACE_HOSTNAME=localhost
 # accessible URL for various places where it writes its own URL.
 ARG DSPACE_PROXY_PORT=8080
 
+# Allow DSpace to be served behind an SSL-terminating reverse proxy
+ARG DSPACE_HTTP_SCHEME=http
+
 # Allow custom Mirage2-based theme
 ARG DSPACE_THEME=Mirage2
 
@@ -112,6 +115,10 @@ RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
            -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
     dspace/build.properties
 
+# Remove port numbers for bulid.properties when they are redundant
+RUN sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" dspace/build.properties
+RUN sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" dspace/build.properties
+
 # Enable the Mirage 2 XMLUI theme
 RUN sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' dspace/dspace/config/xmlui.xconf
 
@@ -139,6 +146,9 @@ FROM tomcat:8.5 AS dspace
 # server like nginx on port 80, for example. DSpace needs to know its publicly
 # accessible URL for various places where it writes its own URL.
 ARG DSPACE_PROXY_PORT=8080
+
+# Allow DSpace to be served behind an SSL-terminating reverse proxy
+ARG DSPACE_HTTP_SCHEME=http
 
 # Allow custom Mirage2-based theme
 ARG DSPACE_THEME=Mirage2
@@ -175,8 +185,11 @@ RUN apt-get update \
 # Tweak default Tomcat server configuration
 COPY config/server.xml "$CATALINA_HOME"/conf/server.xml
 
-# Adjust the Tomcat connector's proxyPort
-RUN sed -i "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" "$CATALINA_HOME"/conf/server.xml
+# Adjust the Tomcat connector's settings
+RUN sed -i -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+           -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
+           -e "s/DSPACE_HTTP_SCHEME/$DSPACE_HTTP_SCHEME/" \
+    "$CATALINA_HOME"/conf/server.xml
 
 # Install root filesystem
 COPY rootfs /
