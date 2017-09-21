@@ -115,7 +115,7 @@ RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
            -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
     dspace/build.properties
 
-# Remove port numbers for bulid.properties when they are redundant
+# Remove port numbers for build.properties when they are redundant
 RUN sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" dspace/build.properties
 RUN sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" dspace/build.properties
 
