@@ -9,6 +9,9 @@
 FROM openjdk:8-jre AS builder
 MAINTAINER Alan Orth <alan.orth@gmail.com>
 
+# Set DSpace version
+ARG DSPACE_VERSION=5.8
+
 # Use a custom site name
 ARG DSPACE_NAME="DSpace at My University"
 
@@ -42,9 +45,9 @@ ARG MAIL_ALERT_ADDR=""
 ARG MAIL_REG_ADDR=""
 
 # Environment variables
-ENV DSPACE_VERSION=5.7
-ENV DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
-    DSPACE_GIT_REVISION=dspace-${DSPACE_VERSION} \
+ENV DSPACE_VERSION=$DSPACE_VERSION \
+    DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-$DSPACE_VERSION \
     DSPACE_HOME=/dspace \
     DSPACE_THEME=$DSPACE_THEME
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
@@ -60,10 +63,7 @@ RUN apt-get update \
     maven \
     postgresql-client \
     git \
-    imagemagick \
-    ghostscript \
     openjdk-8-jdk-headless \
-    cron \
     xmlstarlet \
     && rm -rf /var/lib/apt
 
@@ -102,6 +102,7 @@ COPY config/build.properties dspace
 # Set Custom values in build.properties
 RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
            -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+           -e "s/DSPACE_HTTP_SCHEME/$DSPACE_HTTP_SCHEME/" \
            -e "s/DSPACE_NAME/$DSPACE_NAME/" \
            -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
            -e "s/MAIL_SERVER/$MAIL_SERVER/" \
@@ -126,6 +127,10 @@ RUN sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' dspace/dspace/config/xmlu
 #  in a custom DSpace git repo specified in ENV
 COPY mirage2-themes dspace/dspace/modules/xmlui-mirage2/src/main/webapp/themes
 
+# Send most logs to stdout with custom log4j files
+COPY config/log4j.properties dspace/dspace/config/log4j.properties
+COPY config/log4j-solr.properties dspace/dspace/config/log4j-solr.properties
+
 # Build DSpace with Mirage 2 enabled
 RUN cd dspace && mvn -Dmirage2.on=true package
 
@@ -133,7 +138,10 @@ RUN cd dspace && mvn -Dmirage2.on=true package
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps
 
-# Clean up the DSpace folder
+# Download the MaxMind GeoIP database
+RUN wget -qO- http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz | gunzip -c > "$DSPACE_HOME"/config/GeoLiteCity.dat
+
+# Clean up DSpace build files
 RUN rm -rf "$DSPACE_HOME/.m2"
 
 #
@@ -141,6 +149,9 @@ RUN rm -rf "$DSPACE_HOME/.m2"
 #
 
 FROM tomcat:8.5 AS dspace
+
+# Set DSpace version
+ARG DSPACE_VERSION=5.8
 
 # Cater for environments where Tomcat is being reverse proxied via another HTTP
 # server like nginx on port 80, for example. DSpace needs to know its publicly
@@ -154,7 +165,7 @@ ARG DSPACE_HTTP_SCHEME=http
 ARG DSPACE_THEME=Mirage2
 
 # Environment variables
-ENV DSPACE_VERSION=5.7 \
+ENV DSPACE_VERSION=$DSPACE_VERSION \
     DSPACE_HOME=/dspace \
     DSPACE_THEME=$DSPACE_THEME
 ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \

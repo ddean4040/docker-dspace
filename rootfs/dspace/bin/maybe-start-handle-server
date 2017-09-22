@@ -5,14 +5,14 @@
 #
 
 if [[ $RUN_HDL != "no" ]]; then
-  echo "Starting handle server"
+  echo "Starting handle server in $DSPACE_HOME"
 
   BINDIR=$DSPACE_HOME/bin
 
   # Read parameters from DSpace config
   #
-  DSPACEDIR=`$BINDIR/dspace dsprop -property dspace.dir`
-  HANDLEDIR=`$BINDIR/dspace dsprop -property handle.dir`
+  DSPACEDIR=`$BINDIR/dspace dsprop -property dspace.dir | grep -v INFO | grep -v DEBUG`
+  HANDLEDIR=`$BINDIR/dspace dsprop -property handle.dir | grep -v INFO | grep -v DEBUG`
 
   if [ -f $HANDLEDIR/config.dct ]; then
 
@@ -41,7 +41,7 @@ if [[ $RUN_HDL != "no" ]]; then
     # Start the Handle server, with a special log4j properties file.
     # We cannot simply write to the same logs, since log4j
     # does not support more than one JVM writing to the same rolling log.
-    nohup java $JAVA_OPTS -classpath $FULLPATH -Ddspace.log.init.disable=true -Dlog4j.configuration=log4j-handle-plugin.properties net.handle.server.Main $HANDLEDIR </dev/null >> $LOGDIR/handle-server.log 2>&1 &
+    nohup java $JAVA_OPTS -classpath $FULLPATH -Ddspace.log.init.disable=true -Dlog4j.configuration=log4j-console.properties net.handle.server.Main $HANDLEDIR </dev/null &
 
   else
     echo "config.dct file not found in $HANDLEDIR -- skipping Handle Server startup"
