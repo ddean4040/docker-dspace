@@ -21,6 +21,9 @@ customize-config
 # Copy any custom Spring files from your theme into the DSpace spring folder
 cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/* $DSPACE_HOME/config/spring/
 
+# Copy custom News file into the DSpace config folder
+cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.xml $DSPACE_HOME/config/
+
 # Try to start the Handle server
 su - dspace -c "DSPACE_HOME=$DSPACE_HOME RUN_HDL=$RUN_HDL maybe-start-handle-server"
 
