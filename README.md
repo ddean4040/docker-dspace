@@ -17,12 +17,38 @@
                           /_/
 Debian GNU/Linux 9.1 image. (Linux 4.4.80-mainline-rev1 #1 SMP Mon Aug 7 02:42:53 UTC 2017)
 - with OpenJDK Runtime Environment (build 1.8.0_141-8u141-b15-1~deb9u1-b15)
-- with DSpace 5.7 on Tomcat 8.5.20
+- with DSpace 5.8 on Tomcat 8.5.20
 ```
 
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
 This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
+
+## Build
+
+If you have changes to make to DSpace (like custom themes) you can add them to your mirage2-themes folder, then make a base image:
+
+```console
+docker build . --file Dockerfile.builder --tag dspace-docker:base-5.8
+```
+
+Then make your production image:
+
+```console
+docker build . --file Dockerfile.runner --tag njsl/dspace-docker:dspace-5.8
+```
+
+## Deploy
+
+Set everything you need through ENV variables or your themes. Check out docker-compose.example.yml for an example.
+
+## Handle server
+
+## All ENV vars:
+
+Coming soon
+
+# Original message below
 
 ## Build
 This image is not currently published on the public Docker hub—you will need to build it locally:

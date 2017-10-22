@@ -1,0 +1,50 @@
+version: '2'
+
+volumes:
+  assetstore:
+  solr-data:
+
+services:
+  database:
+    container_name: dspace_db
+    image: postgres:9.5-alpine
+
+# The dspace service will use an existing dspace:latest image, otherwise one
+# will be built from the local context (.). The 'image' command is important
+# because it sets the name of the resulting image to be dspace:latest rather
+# than the name of the current directory, ie docker-dspace.
+
+  dspace:
+    container_name: dspace
+    image: njsl/dspace-docker:dspace-5.8
+    ports:
+      - 8080:8080
+      - 8000:8000
+      - 2641:2641
+    depends_on:
+      - database
+    volumes:
+      - assetstore:/dspace/assetstore
+      - solr-data:/dspace/solr/search/data
+    environment:
+      - POSTGRES_DB_HOST=dspace_db
+      - DSPACE_HOSTNAME=repo.njstatelib.org
+      - DSPACE_PROXY_PORT=443
+      - DSPACE_HTTP_SCHEME=https
+      - DSPACE_NAME="NJ Legislative Histories"
+      - HANDLE_PREFIX=123456789
+      - MAIL_SERVER="mail.example.com"
+      - MAIL_USERNAME=""
+      - MAIL_PASSWORD=""
+      - MAIL_PORT=587
+      - MAIL_FROM_ADDR=""
+      - MAIL_FEEDBACK_ADDR=""
+      - MAIL_ADMIN_ADDR=""
+      - MAIL_ALERT_ADDR=""
+      - MAIL_REG_ADDR=""
+      - DSPACE_THEME=LegislativeHistories
+      - DSPACE_WEBAPPS="oai solr rest xmlui rdf"
+      - CATALINA_OPTS="-Xms256m -Xmx2048M -Dfile.encoding=UTF-8"
+      - RUN_HDL=no
+
+# vim: set sw=2 ts=2:

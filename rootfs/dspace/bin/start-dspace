@@ -4,6 +4,32 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
+sed -i -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+       -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
+       -e "s/DSPACE_HTTP_SCHEME/$DSPACE_HTTP_SCHEME/" \
+    $CATALINA_HOME/conf/server.xml
+
+sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" \
+           -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" \
+           -e "s/DSPACE_HTTP_SCHEME/$DSPACE_HTTP_SCHEME/" \
+           -e "s/DSPACE_NAME/$DSPACE_NAME/" \
+           -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+           -e "s/MAIL_SERVER/$MAIL_SERVER/" \
+           -e "s/MAIL_USERNAME/$MAIL_USERNAME/" \
+           -e "s/MAIL_PASSWORD/$MAIL_PASSWORD/" \
+           -e "s/MAIL_PORT/$MAIL_PORT/" \
+           -e "s/MAIL_FROM_ADDR/$MAIL_FROM_ADDR/" \
+           -e "s/MAIL_FEEDBACK_ADDR/$MAIL_FEEDBACK_ADDR/" \
+           -e "s/MAIL_ADMIN_ADDR/$MAIL_ADMIN_ADDR/" \
+           -e "s/MAIL_ALERT_ADDR/$MAIL_ALERT_ADDR/" \
+           -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
+    $DSPACE_HOME/config/dspace.cfg
+
+sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" $DSPACE_HOME/config/dspace.cfg
+sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" $DSPACE_HOME/config/dspace.cfg
+
+sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' config/xmlui.xconf
+
 POSTGRES_DB_HOST=${POSTGRES_DB_HOST:-$POSTGRES_PORT_5432_TCP_ADDR}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-$POSTGRES_PORT_5432_TCP_PORT}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-5432}
