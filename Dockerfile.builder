@@ -34,7 +34,9 @@ RUN apt-get update \
     git \
     openjdk-8-jdk-headless \
     xmlstarlet \
-    && rm -rf /var/lib/apt
+    && rm -rf /var/lib/apt \
+    && apt -y autoremove
+
 
 # Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
 # quite a bit of bootstrapping with npm and bower, which fails as root. Also

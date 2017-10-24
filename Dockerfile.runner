@@ -2,7 +2,7 @@
 # DSpace image - multistage build
 #
 
-FROM njsl/dspace-docker:njsl-base-5.8 AS dspace
+FROM njsl/dspace-docker:base-5.8 AS dspace
 
 # Set DSpace version
 ARG DSPACE_VERSION=5.8
@@ -14,9 +14,11 @@ ARG DSPACE_HOME=/dspace
 ENV DSPACE_VERSION=$DSPACE_VERSION \
     DSPACE_HOME=/dspace \
     DSPACE_THEME=Mirage2 \
-    DSPACE_HOSTNAME=localhost \
-    DSPACE_PROXY_PORT=8080 \
-    DSPACE_HTTP_SCHEME=http \
+    HTTP_HOSTNAME=localhost \
+    HTTP_PORT=8080 \
+    HTTP_SCHEME=http \
+    DSPACE_UI=xmlui
+ENV DSPACE_URL=${HTTP_HOSTNAME}/${DSPACE_UI} \
     DSPACE_NAME="DSpace at My University" \
     HANDLE_PREFIX=123456789 \
     MAIL_SERVER="mail.example.com" \
@@ -42,8 +44,12 @@ RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properti
 # Enable PDF thumbnails
 RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg
 
-RUN rm -fr /tmp/* /var/lib/apt/lists/* \
-    && apt -y autoremove
+# Build info
+RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built && \
+    echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
+    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built && \
+    echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built && \
+    echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
 
 WORKDIR $DSPACE_HOME
 
