@@ -17,17 +17,16 @@ fi
 
 while read linelocal; do
   if [[ $linelocal != "" ]]; then
-    settingkey=$(echo $linelocal | sed -r "s/(.*)[[:space:]]*=[[:space:]]*(.*)/\1/")
-    settingval=$(echo $linelocal | sed -r "s/(.*)[[:space:]]*=[[:space:]]*(.*)/\2/")
-    echo "Key is: $settingkey"
-    echo "Value is: $settingval"
+    settingkey=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\1/")
+    settingval=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\2/")
+
+    echo "Setting value for $settingkey to: $settingval"
     if grep -q $settingkey $CFG_DSPACE; then
       # Found this setting - change the property
-      sed -i -re "s/(#?)$settingkey[[:space:]]*= (.*)/$settingkey = $settingval/" $CFG_DSPACE
+      sed -i -re "s/(#?)$settingkey[[:space:]]*=[[:space:]]*(.*)/$settingkey = $settingval/" $CFG_DSPACE
     else
       # Didn't find this setting - add it to the end
       echo $linelocal >> $CFG_DSPACE
     fi
   fi
 done <$CFG_THEME
-
