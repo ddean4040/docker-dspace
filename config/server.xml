@@ -68,9 +68,9 @@
     -->
     <Connector port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
-               proxyPort="DSPACE_PROXY_PORT"
-               proxyName="DSPACE_HOSTNAME"
-               scheme="DSPACE_HTTP_SCHEME"
+               proxyPort="HTTP_PORT"
+               proxyName="HTTP_HOSTNAME"
+               scheme="HTTP_SCHEME"
                URIEncoding="UTF-8" />
     <!-- A "Connector" using the shared thread pool-->
     <!--
