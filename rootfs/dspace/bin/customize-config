@@ -15,7 +15,7 @@ else
   CFG_DSPACE="$DSPACE_HOME/config/local.cfg"
 fi
 
-while read linelocal; do
+while IFS='' read -r linelocal || [[ -n "$linelocal" ]]; do
   if [[ $linelocal != "" ]]; then
     settingkey=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\1/")
     settingval=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\2/")
