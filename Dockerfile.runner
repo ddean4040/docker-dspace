@@ -39,7 +39,6 @@ RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenanc
 
 # Disable assistive technology to fix issue with filter-media command and headless JDK
 RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properties
-# TODO: try this CATALINA_OPT argument instead: -Djava.awt.headless=true
 
 # Enable PDF thumbnails
 RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg
