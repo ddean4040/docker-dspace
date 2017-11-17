@@ -4,6 +4,17 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
+echo "Checking folder ownership in $DSPACE_HOME"
+find $DSPACE_HOME -mindepth 1 -maxdepth 1 -type d | while read -r dir
+do
+  CURRENTUSER=`ls -ld $dir | awk '{print $3}'`
+  if [[ "dspace" != "$CURRENTUSER" ]]; then
+    echo "Changing owner to dspace for directory $dir"
+    chown dspace:dspace $dir
+  fi
+done
+
+
 echo "Updating server.xml in $CATALINA_HOME"
 sed -i -e "s/HTTP_PORT/$HTTP_PORT/" \
        -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
@@ -84,6 +95,13 @@ if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/ ]; t
     cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/* $DSPACE_HOME/config/spring/
 else
     echo "No Spring customizations found in $DSPACE_THEME"
+fi
+
+# Copy any custom Module config files from your theme into the DSpace config
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/modules/ ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/modules/* $DSPACE_HOME/config/modules/
+else
+    echo "No module customizations found in $DSPACE_THEME"
 fi
 
 # Copy custom News file into the DSpace config folder
