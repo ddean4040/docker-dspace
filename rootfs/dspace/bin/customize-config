@@ -17,8 +17,8 @@ fi
 
 while IFS='' read -r linelocal || [[ -n "$linelocal" ]]; do
   if [[ $linelocal != "" ]]; then
-    settingkey=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\1/")
-    settingval=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([[:graph:]]+)/\2/")
+    settingkey=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([^\n]+)/\1/")
+    settingval=$(echo $linelocal | sed -r "s/([[:graph:]]+)[[:space:]]*=[[:space:]]*([^\n]+)/\2/")
 
     echo "Setting value for $settingkey to: $settingval"
     if grep -q $settingkey $CFG_DSPACE; then
