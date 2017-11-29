@@ -23,7 +23,7 @@ while IFS='' read -r linelocal || [[ -n "$linelocal" ]]; do
     echo "Setting value for $settingkey to: $settingval"
     if grep -q $settingkey $CFG_DSPACE; then
       # Found this setting - change the property
-      sed -i -re "s/(#?)$settingkey[[:space:]]*=[[:space:]]*(.*)/$settingkey = $settingval/" $CFG_DSPACE
+      sed -i -re "s|(#?)$settingkey[[:space:]]*=[[:space:]]*(.*)|$settingkey = $settingval|" $CFG_DSPACE
     else
       # Didn't find this setting - add it to the end
       echo $linelocal >> $CFG_DSPACE
