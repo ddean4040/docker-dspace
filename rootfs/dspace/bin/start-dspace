@@ -4,6 +4,8 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
+DEBUG=${DEBUG:-no}
+
 echo "Checking folder ownership in $DSPACE_HOME"
 find $DSPACE_HOME -mindepth 1 -maxdepth 1 -type d | while read -r dir
 do
@@ -104,11 +106,36 @@ else
     echo "No module customizations found in $DSPACE_THEME"
 fi
 
+# Copy any custom email templates from your theme into the DSpace config
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/emails/ ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/emails/* $DSPACE_HOME/config/emails/
+else
+    echo "No email templates found in $DSPACE_THEME"
+fi
+
 # Copy custom News file into the DSpace config folder
 if [ -f /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.xml ]; then
     cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.xml $DSPACE_HOME/config/
 else
     echo "No news-xmlui.xml file found in $DSPACE_THEME"
+fi
+
+if [[ "no" != "$DEBUG" ]]; then
+    echo "Debugging enabled"
+    sed -i -re "s/log4j.rootCategory=(.+), A1/log4j.rootCategory=DEBUG, A1/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace=(.+), A1/log4j.logger.org.dspace=DEBUG, A1/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.checker=(.+), A2/log4j.logger.org.dspace.checker=DEBUG, A2/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.apache.cocoon=(.+), A3/log4j.logger.org.apache.cocoon=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.cocoon=(.+), A3/log4j.logger.cocoon=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.springframework=(.+), A3/log4j.logger.org.springframework=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.apache.axis.handlers.http.HTTPAuthHandler=(.+)/log4j.logger.org.apache.axis.handlers.http.HTTPAuthHandler=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.kernel=(.+)/log4j.logger.org.dspace.kernel=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.services=(.+)/log4j.logger.org.dspace.services=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.servicemanager=(.+)/log4j.logger.org.dspace.servicemanager=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.providers=(.+)/log4j.logger.org.dspace.providers=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.utils=(.+)/log4j.logger.org.dspace.utils=DEBUG/" /dspace/config/log4j.properties
+else
+    echo "Debugging off"
 fi
 
 # Try to start the Handle server
