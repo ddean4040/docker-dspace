@@ -70,9 +70,10 @@ RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
 # and port below)
 COPY config/build.properties dspace
 
-# Install user-supplied themes - long-term these should be included
-#  in a custom DSpace git repo specified in ENV
+# Install user-supplied themes
+# XMLUI themes not based on Mirage2 can be added after DSpace is built
 COPY mirage2-themes dspace/dspace/modules/xmlui-mirage2/src/main/webapp/themes
+COPY xmlui-themes   dspace/dspace-xmlui/src/main/webapp/themes
 
 # Send most logs to stdout with custom log4j files
 COPY config/log4j.properties dspace/dspace/config/log4j.properties
@@ -133,10 +134,11 @@ RUN chown -R dspace:dspace "$CATALINA_HOME" \
 # Install runtime and dependencies
 RUN apt-get update \
     && apt-get install -y \
+    cron \
     postgresql-client \
     imagemagick \
     ghostscript \
-    cron \
     xmlstarlet \
+    && apt -y autoremove \
     && rm -rf /var/lib/apt
 
