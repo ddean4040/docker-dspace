@@ -15,24 +15,23 @@
                 / /_/ /___/ / /_/ / /_/ / /__/  __/
                /_____//____/ .___/\__,_/\___/\___/
                           /_/
-Debian GNU/Linux 9.1 image. (Linux 4.4.80-mainline-rev1 #1 SMP Mon Aug 7 02:42:53 UTC 2017)
-- with OpenJDK Runtime Environment (build 1.8.0_141-8u141-b15-1~deb9u1-b15)
-- with DSpace 5.8 on Tomcat 8.5.20
+Debian GNU/Linux 9.1 image.
+- with OpenJDK Runtime Environment
+- with DSpace 5.x on Tomcat 8.5
 ```
 
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
-This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
 
 ## Build
 
-If you have changes to make to DSpace (like custom themes) you can add them to your mirage2-themes folder, then make a base image:
+If you have custom themes, you can add them to your `mirage2-themes` folder (for Mirage2-based themes) or `xmlui-themes`, then build a base image:
 
 ```console
-docker build . --file Dockerfile.builder --tag dspace-docker:base-5.8
+docker build . --file Dockerfile.builder --tag njsl/dspace-docker:base-5.8
 ```
 
-Then make your production image:
+Then build your production image:
 
 ```console
 docker build . --file Dockerfile.runner --tag njsl/dspace-docker:dspace-5.8
@@ -44,55 +43,13 @@ Set everything you need through ENV variables or your themes. Check out docker-c
 
 ## Handle server
 
-## All ENV vars:
-
-Coming soon
-
-# Original message below
-
-## Build
-This image is not currently published on the public Docker hub—you will need to build it locally:
+This image includes a Handle server. If you don't have an existing Handle server set up, you can generate one through the `dspace` command:
 
 ```console
-$ docker build -f Dockerfile -t dspace .
+docker exec -it -u dspace dspace bin/dspace make-handle-config /dspace/handle-server
 ```
 
-*Note: this can take anywhere from thirty minutes to several hours (depending on your Internet connection) due to the amount of packages DSpace's maven build step pulls in.*
-
-By default this container is set up to run on `localhost` in a development environment. If you need to run this in production you can override the hostname and proxy port—for example, if you're reverse proxying to Tomcat via nginx on port 80—at build time:
-
-```console
-$ docker build -f Dockerfile -t dspace --build-arg DSPACE_HOSTNAME=repo.example.org --build-arg DSPACE_PROXY_PORT=80 .
-```
-
-## Run
-First, we have to create a Docker network for the application container and PostgreSQL container to communicate over (this uses [Docker networks](https://docs.docker.com/engine/userguide/networking) instead of the legacy `link` behavior):
-
-```console
-$ docker network create dspace
-```
-
-Second, we have to create a PostgreSQL container (specifying the network to use):
-
-```console
-$ docker run -itd --name dspace_db --network=dspace -p 5432:5432 postgres:9.5-alpine
-```
-
-And finally, create a DSpace container (specifying the network to use and the name of the PostgreSQL container):
-
-```console
-$ docker run -itd --name dspace --network=dspace -p 8080:8080 -e POSTGRES_DB_HOST=dspace_db dspace
-```
-
-By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [PostgreSQL Connection Parameters](#postgresql-connection-parameters)).
-
-After few seconds, the various DSpace web applications should be accessible from:
-  - JSP User Interface: http://localhost:8080/jspui
-  - XML User Interface: http://localhost:8080/xmlui
-  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
-  - REST: http://localhost:8080/rest
-
-*Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
+Once your Handle files are in place, use the `RUN_HDL` ENV variable to control the Handle server.
 
 ## Environment Variables
 This image provides sane defaults for most settings but you can override many of those via environment variables, either with `-e` on the Docker command line or in your `docker-compose.yml`.
@@ -119,6 +76,40 @@ environment:
   - POSTGRES_PASSWORD=my_password
   - CATALINA_OPTS=-Xms2048m -Xmx2048m -Dfile.encoding=UTF-8
 ```
+
+### DSpace URL control
+
+  - `HTTP_HOSTNAME` (optional) The hostname at which you want to access DSpace (`localhost` by default)
+  - `HTTP_PORT` (optional)     The port you want to use to access DSpace (`8080` by default)
+  - `HTTP_SCHEME` (optional)   The HTTP protocol you want to use to access DSpace (`http` by default)
+  - `DSPACE_UI` (optional)     The primary DSpace web UI (`xmlui` by default)
+  - `DSPACE_URL` (optional)    the DSpace base URL (`${HTTP_HOSTNAME}/${DSPACE_UI}` by default)
+
+### DSpace theme and other settings
+
+  - `DSPACE_NAME` (optional)   A friendly name for your DSpace site (`"DSpace at My University"` by default)
+  - `DSPACE_THEME` (optional)  The XMLUI theme to use for your DSpace site (`Mirage2` by default)
+  - `HANDLE_PREFIX` (optional) The Handle prefix to use for new items on your DSpace site (`123456789` by default)
+
+### Mail settings
+
+  - `MAIL_SERVER` (optional)        The server to use for outgoing mail (`mail.example.com` by default)
+  - `MAIL_PORT` (optional)          The port to use for outgoing mail (e.g. 25 or 587)
+  - `MAIL_USERNAME` (optional)      The username to use when sending mail
+  - `MAIL_PASSWORD` (optional)      The password to use when sending mail
+  - `MAIL_FROM_ADDR` (optional)     The from address to use when sending mail
+  - `MAIL_FEEDBACK_ADDR` (optional) The feedback email address
+  - `MAIL_ADMIN_ADDR` (optional)    The email address for admin messages
+  - `MAIL_ALERT_ADDR` (optional)    The email address for alerts
+  - `MAIL_REG_ADDR` (optional)      The registration notification email
+
+### Handle server control
+
+  - `RUN_HDL` (optional) Set to `yes` to enable the Handle server. If the Handle server is not properly configured, may cause the container to crash.  (`no` by default)
+
+### Debug mode
+
+  - `DEBUG` (optional)   Set to `yes` to enable all possible logging at DEBUG level for troubleshooting. Not recommended for production use. (`no` by default)
 
 ### PostgreSQL Connection Parameters
 To use an external PostgreSQL database or override any of the other default settings you have to set some environment variables:
@@ -148,6 +139,34 @@ $ docker run -itd --name dspace --network=dspace \
 ```
 
 The command above only installs the `jspui`, `xmlui`, and `rest` web applications.
+
+## Customizations in themes
+
+This Docker image allows themes to bundle a number of customizations:
+
+  - Custom files for the `config/spring` folder (e.g. to change sidebar options in XMLUI)
+  - Custom files for the `config/modules` folder (to overwrite any settings in that folder)
+  - Custom email templates
+  - A custom `news-xmlui.xml` file
+  - Changes or additions to `config/dspace.cfg`
+  - Changes or additions to `i18n/messages.xml`
+
+The goal of this fork is to allow ENV settings and theme customizations to cover 80% of DSpace installs without needing to fork the DSpace git repo
+
+# Original message below
+
+This image was originally based on the [1science/docker-dspace](https://github.com/1science/docker-dspace) image, but has diverged significantly to update for current Docker best practices, use the official Tomcat Docker image with a [modern Debian 9 base](https://github.com/docker-library/tomcat/blob/master/9.0/jre8/Dockerfile), and bump some dependency versions.
+
+By default this will create a PostgreSQL database schema called `dspace`, with user `dspace` and password `dspace`. If you're running this in production you should obviously change these (see [PostgreSQL Connection Parameters](#postgresql-connection-parameters)).
+
+After few seconds, the various DSpace web applications should be accessible from:
+  - JSP User Interface: http://localhost:8080/jspui
+  - XML User Interface: http://localhost:8080/xmlui
+  - OAI-PMH Interface: http://localhost:8080/oai/request?verb=Identify
+  - REST: http://localhost:8080/rest
+
+*Note: the security constraint to tunnel request with SSL on the `/rest` endpoint has been removed, but it's very important to securize this endpoint in production through [Nginx](https://github.com/1science/docker-nginx) for example.*
+
 
 ## License
 All the code contained in this repository, unless explicitly stated, is
