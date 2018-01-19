@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     ghostscript \
     openjdk-8-jdk-headless \
+    less \
     cron \
     && rm -rf /var/lib/apt/lists/*
 
