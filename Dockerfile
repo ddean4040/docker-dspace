@@ -102,5 +102,5 @@ RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /
     echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
 
 EXPOSE 8080
-# will run `start-dspace` script as root, then drop to dspace user
-CMD ["start-dspace"]
+# will run `start-dspace.sh` script as root, then drop to dspace user
+CMD ["start-dspace.sh"]
