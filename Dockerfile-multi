@@ -1,0 +1,128 @@
+#
+# DSpace image
+#
+
+FROM alpine as clone
+LABEL maintainer "Alan Orth <alan.orth@gmail.com>"
+
+# Environment variables
+ENV DSPACE_GIT_URL=https://github.com/DSpace/DSpace.git \
+    DSPACE_GIT_REVISION=dspace-5.8
+
+WORKDIR /tmp
+
+RUN apk add --no-cache git openssh
+
+# Clone DSpace source to $WORKDIR/dspace
+RUN git clone --depth=1 --branch "$DSPACE_GIT_REVISION" "$DSPACE_GIT_URL" dspace
+
+
+# I suspect that we can't use alpine based container here because the maven build needs nodejs, ruby, etc... and might have issues with Alpine's limited environment
+FROM maven:3.5-jdk-8 as build
+# Allow custom DSpace hostname at build time (default to localhost if undefined)
+# To override, pass --build-arg DSPACE_HOSTNAME=repo.example.org to docker build
+ARG DSPACE_HOSTNAME=localhost
+# Cater for environments where Tomcat is being reverse proxied via another HTTP
+# server like nginx on port 80, for example. DSpace needs to know its publicly
+# accessible URL for various places where it writes its own URL.
+ARG DSPACE_PROXY_PORT=8080
+
+# Environment variables
+ENV DSPACE_HOME=/dspace
+
+WORKDIR /tmp
+
+COPY --from=clone /tmp/dspace dspace
+
+RUN apt-get update && apt-get install -y \
+    ant \
+    openjdk-8-jdk-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add a non-root user to perform the Maven build. DSpace's Mirage 2 theme does
+# quite a bit of bootstrapping with npm and bower, which fails as root. Also
+# change ownership of DSpace source directory.
+RUN useradd -r -s /bin/bash -m -d "$DSPACE_HOME" dspace \
+    && chown -R dspace:dspace dspace "$DSPACE_HOME"
+
+# Change to dspace user for build and install
+USER dspace
+
+# Copy customized build.properties (taken straight from the DSpace source
+# tree and modified only to add bits to make it easier to replace hostname
+# and port below)
+COPY config/build.properties dspace
+
+# Set DSpace hostname and port in build.properties and enable the Mirage 2 XMLUI
+# theme
+RUN sed -i -e "s/DSPACE_HOSTNAME/$DSPACE_HOSTNAME/" -e "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" dspace/build.properties \
+    && sed -i 's#path="Mirage/"#path="Mirage2/"#' dspace/dspace/config/xmlui.xconf
+
+RUN mkdir -p $DSPACE_HOME/.m2
+
+COPY config/settings.xml $DSPACE_HOME/.m2/settings.xml
+
+# Build DSpace with Mirage 2 enabled
+RUN cd dspace && mvn -Dmirage2.on=true -P \!dspace-lni,\!dspace-rdf,\!dspace-sword,\!dspace-swordv2 package
+#RUN cd dspace && mvn -Dmirage2.on=true package
+
+# Install compiled applications to $CATALINA_HOME
+RUN cd dspace/dspace/target/dspace-installer \
+    && ant init_installation init_configs install_code copy_webapps
+
+USER root
+
+RUN rm -rf "$DSPACE_HOME/.m2" /tmp/*; \
+    apt-get remove -y ant git openjdk-8-jdk-headless && apt-get -y autoremove
+
+
+FROM tomcat:7-jre8
+ARG DSPACE_PROXY_PORT=8080
+
+# Environment variables
+ENV DSPACE_HOME=/dspace \
+    CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
+    DSPACE_GIT_REVISION=dspace-5.8
+ENV PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH
+
+# Install runtime and dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    imagemagick \
+    ghostscript \
+    less \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /dspace $DSPACE_HOME
+
+# Install root filesystem
+COPY rootfs /
+
+RUN useradd -r -s /bin/bash -d "$DSPACE_HOME" dspace \
+    && rm -rf "$CATALINA_HOME/webapps" \
+    && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
+    && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
+
+# Docker's COPY instruction always sets ownership to the root user, so we need
+# to explicitly change ownership of those files and directories, as well as any
+# others that the dspace user will need to modify.
+RUN chown -R dspace:dspace "$DSPACE_HOME" "$CATALINA_HOME"
+
+# Adjust the Tomcat connector's proxyPort and make sure the crontab uses the
+# correct DSpace directory
+RUN sed -i "s/DSPACE_PROXY_PORT/$DSPACE_PROXY_PORT/" "$CATALINA_HOME"/conf/server.xml \
+    && sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
+
+WORKDIR $DSPACE_HOME
+
+# Build info
+RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built \
+    && echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built \
+    && echo "- with $DSPACE_GIT_REVISION on Tomcat $TOMCAT_VERSION"  >> /root/.built \
+    && echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built \
+    && echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
+
+EXPOSE 8080
+# will run `start-dspace.sh` script as root, then drop to dspace user
+CMD ["start-dspace.sh"]
