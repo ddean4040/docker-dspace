@@ -10,9 +10,9 @@ POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-5432}
 
 # Create PostgreSQL user and database schema
 if [ -n $POSTGRES_DB_HOST -a -n $POSTGRES_DB_PORT ]; then
-    # Wait for PostgreSQL and then call `setup-postgres` script
+    # Wait for PostgreSQL and then call `setup-postgres.sh` script
     # See: https://docs.docker.com/compose/startup-order/
-    wait-for-postgres.sh $POSTGRES_DB_HOST setup-postgres
+    wait-for-postgres.sh $POSTGRES_DB_HOST setup-postgres.sh
 fi
 
 # Remove unused webapps
