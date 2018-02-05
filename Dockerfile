@@ -66,7 +66,8 @@ RUN cd dspace && mvn -Dmirage2.on=true package
 # Install compiled applications to $CATALINA_HOME
 RUN cd dspace/dspace/target/dspace-installer \
     && ant init_installation init_configs install_code copy_webapps \
-    && rm -rf "$CATALINA_HOME/webapps" && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
+    && rm -rf "$CATALINA_HOME/webapps" \
+    && mv -f "$DSPACE_HOME/webapps" "$CATALINA_HOME" \
     && sed -i s/CONFIDENTIAL/NONE/ "$CATALINA_HOME"/webapps/rest/WEB-INF/web.xml
 
 # Change back to root user for cleanup
@@ -90,16 +91,17 @@ RUN chown dspace:dspace $DSPACE_HOME $DSPACE_HOME/bin/*
 RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
 
 RUN rm -rf "$DSPACE_HOME/.m2" /tmp/*; \
-    apt-get remove -y ant maven git openjdk-8-jdk-headless && apt-get -y autoremove
+    apt-get remove -y ant maven git openjdk-8-jdk-headless \
+    && apt-get -y autoremove
 
 WORKDIR $DSPACE_HOME
 
 # Build info
-RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built && \
-    echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
-    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built && \
-    echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built && \
-    echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
+RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built \
+    && echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built \
+    && echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built \
+    && echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built \
+    && echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
 
 EXPOSE 8080
 # will run `start-dspace.sh` script as root, then drop to dspace user
