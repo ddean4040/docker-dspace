@@ -2,7 +2,7 @@
 # DSpace image
 #
 
-FROM tomcat:7
+FROM tomcat:7-jre8
 LABEL maintainer "Alan Orth <alan.orth@gmail.com>"
 
 # Allow custom DSpace hostname at build time (default to localhost if undefined)
