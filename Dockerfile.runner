@@ -1,0 +1,60 @@
+#
+# DSpace image - multistage build
+#
+
+FROM njsl/dspace-docker:base-5.8 AS dspace
+
+# Set DSpace version
+ARG DSPACE_VERSION=5.8
+
+# Set DSpace home directory
+ARG DSPACE_HOME=/dspace
+
+# Environment variables
+ENV DSPACE_VERSION=$DSPACE_VERSION \
+    DSPACE_HOME=/dspace \
+    DSPACE_THEME=Mirage2 \
+    HTTP_HOSTNAME=localhost \
+    HTTP_PORT=8080 \
+    HTTP_SCHEME=http \
+    DSPACE_UI=xmlui
+ENV DSPACE_URL=${HTTP_HOSTNAME}/${DSPACE_UI} \
+    DSPACE_NAME="DSpace at My University" \
+    HANDLE_PREFIX=123456789 \
+    MAIL_SERVER="mail.example.com" \
+    MAIL_USERNAME="" \
+    MAIL_PASSWORD="" \
+    MAIL_PORT="" \
+    MAIL_FROM_ADDR="" \
+    MAIL_FEEDBACK_ADDR="" \
+    MAIL_ADMIN_ADDR="" \
+    MAIL_ALERT_ADDR="" \
+    MAIL_REG_ADDR="" \
+    DEBUG=no
+ENV CATALINA_OPTS="-Xmx512M -Dfile.encoding=UTF-8" \
+    PATH=PATH=$CATALINA_HOME/bin:$DSPACE_HOME/bin:$PATH \
+    RUN_HDL=no
+
+# Make sure the crontab uses the correct DSpace directory
+RUN sed -i "s#DSPACE=/dspace#DSPACE=$DSPACE_HOME#" /etc/cron.d/dspace-maintenance-tasks
+
+# Disable assistive technology to fix issue with filter-media command and headless JDK
+RUN sed -i "s/^assistive/#assistive/" /etc/java-8-openjdk/accessibility.properties
+
+# Enable PDF thumbnails
+RUN sed -i "s/Word Text Extractor, JPEG Thumbnail/Word Text Extractor, ImageMagick Image Thumbnail, ImageMagick PDF Thumbnail/" $DSPACE_HOME/config/dspace.cfg
+
+# Build info
+RUN echo "Debian GNU/Linux `cat /etc/debian_version` image. (`uname -rsv`)" >> /root/.built && \
+    echo "- with `java -version 2>&1 | awk 'NR == 2'`" >> /root/.built && \
+    echo "- with DSpace $DSPACE_VERSION on Tomcat $TOMCAT_VERSION"  >> /root/.built && \
+    echo "\nNote: if you need to run commands interacting with DSpace you should enter the" >> /root/.built && \
+    echo "container as the dspace user, ie: docker exec -it -u dspace dspace /bin/bash" >> /root/.built
+
+WORKDIR $DSPACE_HOME
+
+VOLUME ["/dspace/assetstore"]
+
+EXPOSE 8080 8000 2641
+# will run `start-dspace` script as root, then drop to dspace user
+CMD ["start-dspace"]

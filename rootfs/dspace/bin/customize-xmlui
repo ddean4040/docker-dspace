@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+MESSAGEXML_THEME="/usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/i18n/messages.xml"
+MESSAGEXML_DSPACE="/usr/local/tomcat/webapps/xmlui/i18n/messages.xml"
+
+if [ ! -f $MESSAGEXML_THEME ]; then
+  echo "No custom messages.xml doc found in $DSPACE_THEME -- skipping import"
+  exit 1
+fi
+
+if [ ! -f $MESSAGEXML_DSPACE ]; then
+  exit 1
+fi
+
+echo "Importing messages.xml from $DSPACE_THEME"
+
+xmlkeys=($(xmlstarlet sel -t -m "/catalogue/message" -m "@key" -v . -n $MESSAGEXML_THEME | tr -d '/'))
+for element in ${xmlkeys[@]}; do
+  IFS='%'
+  VALUE_DSPACE=($(xmlstarlet sel -t -m "/catalogue/message[@key='$element']" -v . -n $MESSAGEXML_DSPACE))
+  VALUE_THEME=($(xmlstarlet sel -t -m "/catalogue/message[@key='$element']" -v . -n $MESSAGEXML_THEME))
+  unset IFS
+  if [[ $VALUE_DSPACE == "" ]]; then
+    # Not there - add it
+    xmlstarlet ed --inplace \
+     -s "/catalogue" -t elem -n "newmessage" -v "$VALUE_THEME" \
+     -i "/catalogue/newmessage" -t attr -n "key" -v "$element" \
+     -r "/catalogue/newmessage" -v "message" $MESSAGEXML_DSPACE
+  elif [[ $VALUE_DSPACE != $VALUE_THEME ]]; then
+    # Exists but the value doesn't match
+    xmlstarlet ed --inplace -u "/catalogue/message[@key='$element']" -v "$VALUE_THEME" $MESSAGEXML_DSPACE
+  fi
+done

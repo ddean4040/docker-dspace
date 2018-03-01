@@ -4,6 +4,80 @@
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
 
+DEBUG=${DEBUG:-no}
+
+echo "Checking folder ownership in $DSPACE_HOME"
+find $DSPACE_HOME -mindepth 1 -maxdepth 1 -type d | while read -r dir
+do
+  CURRENTUSER=`ls -ld $dir | awk '{print $3}'`
+  if [[ "dspace" != "$CURRENTUSER" ]]; then
+    echo "Changing owner to dspace for directory $dir"
+    chown dspace:dspace $dir
+  fi
+done
+
+
+echo "Updating server.xml in $CATALINA_HOME"
+sed -i -e "s/HTTP_PORT/$HTTP_PORT/" \
+       -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+       -e "s/HTTP_SCHEME/$HTTP_SCHEME/" \
+    $CATALINA_HOME/conf/server.xml
+
+echo "Updating dspace.cfg in $DSPACE_HOME"
+sed -i -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+           -e "s/HTTP_PORT/$HTTP_PORT/" \
+           -e "s/HTTP_SCHEME/$HTTP_SCHEME/" \
+           -e "s/DSPACE_UI/$DSPACE_UI/" \
+           -e "s/DSPACE_URL/$DSPACE_URL/" \
+           -e "s/DSPACE_NAME/$DSPACE_NAME/" \
+           -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+           -e "s/MAIL_SERVER/$MAIL_SERVER/" \
+           -e "s/MAIL_USERNAME/$MAIL_USERNAME/" \
+           -e "s/MAIL_PASSWORD/$MAIL_PASSWORD/" \
+           -e "s/MAIL_PORT/$MAIL_PORT/" \
+           -e "s/MAIL_FROM_ADDR/$MAIL_FROM_ADDR/" \
+           -e "s/MAIL_FEEDBACK_ADDR/$MAIL_FEEDBACK_ADDR/" \
+           -e "s/MAIL_ADMIN_ADDR/$MAIL_ADMIN_ADDR/" \
+           -e "s/MAIL_ALERT_ADDR/$MAIL_ALERT_ADDR/" \
+           -e "s/MAIL_REG_ADDR/$MAIL_REG_ADDR/" \
+    $DSPACE_HOME/config/dspace.cfg
+
+sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" $DSPACE_HOME/config/dspace.cfg
+sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" $DSPACE_HOME/config/dspace.cfg
+
+echo "Updating OAI"
+sed -i -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+       -e "s/HTTP_PORT/$HTTP_PORT/" \
+       -e "s/HTTP_SCHEME/$HTTP_SCHEME/" \
+       -e "s/DSPACE_URL/$DSPACE_URL/" \
+       -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+    $DSPACE_HOME/config/modules/oai.cfg
+
+sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" $DSPACE_HOME/config/modules/oai.cfg
+sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" $DSPACE_HOME/config/modules/oai.cfg
+
+sed -i -e "s/^# dspace.oai.url/dspace.oai.url/" $DSPACE_HOME/config/modules/oai.cfg 
+
+sed -i -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+       -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+    $DSPACE_HOME/config/crosswalks/oai/description.xml
+
+sed -i -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+       -e "s/HANDLE_PREFIX/$HANDLE_PREFIX/" \
+    $DSPACE_HOME/config/description.xml
+
+echo "Updating RDF"
+sed -i -e "s/HTTP_HOSTNAME/$HTTP_HOSTNAME/" \
+       -e "s/HTTP_PORT/$HTTP_PORT/" \
+       -e "s/HTTP_SCHEME/$HTTP_SCHEME/" \
+    $DSPACE_HOME/config/modules/rdf.cfg
+
+sed -i -r "/80([[:digit:]]+)/! s|http\://(.+)\:80|http\://\1|" $DSPACE_HOME/config/modules/rdf.cfg
+sed -i -r "/443([[:digit:]]+)/! s|https\://(.+)\:443|https\://\1|" $DSPACE_HOME/config/modules/rdf.cfg
+
+echo "Updating xmlui.xconf"
+sed -i 's#path="Mirage/"#path="'$DSPACE_THEME'/"#' config/xmlui.xconf
+
 POSTGRES_DB_HOST=${POSTGRES_DB_HOST:-$POSTGRES_PORT_5432_TCP_ADDR}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-$POSTGRES_PORT_5432_TCP_PORT}
 POSTGRES_DB_PORT=${POSTGRES_DB_PORT:-5432}
@@ -15,18 +89,80 @@ if [ -n $POSTGRES_DB_HOST -a -n $POSTGRES_DB_PORT ]; then
     wait-for-postgres.sh $POSTGRES_DB_HOST setup-postgres
 fi
 
+customize-xmlui
+customize-config
+
+# Copy any custom Spring files from your theme into the DSpace spring folder
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/ ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/* $DSPACE_HOME/config/spring/
+else
+    echo "No Spring customizations found in $DSPACE_THEME"
+fi
+
+# Copy any custom Module config files from your theme into the DSpace config
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/modules/ ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/modules/* $DSPACE_HOME/config/modules/
+else
+    echo "No module customizations found in $DSPACE_THEME"
+fi
+
+# Copy any custom email templates from your theme into the DSpace config
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/emails/ ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/emails/* $DSPACE_HOME/config/emails/
+else
+    echo "No email templates found in $DSPACE_THEME"
+fi
+
+# Copy custom News file into the DSpace config folder
+if [ -f /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.xml ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.xml $DSPACE_HOME/config/
+else
+    echo "No news-xmlui.xml file found in $DSPACE_THEME"
+fi
+
+if [[ "no" != "$DEBUG" ]]; then
+    echo "Debugging enabled"
+    sed -i -re "s/log4j.rootCategory=(.+), A1/log4j.rootCategory=DEBUG, A1/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace=(.+), A1/log4j.logger.org.dspace=DEBUG, A1/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.checker=(.+), A2/log4j.logger.org.dspace.checker=DEBUG, A2/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.apache.cocoon=(.+), A3/log4j.logger.org.apache.cocoon=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.cocoon=(.+), A3/log4j.logger.cocoon=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.springframework=(.+), A3/log4j.logger.org.springframework=DEBUG, A3/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.apache.axis.handlers.http.HTTPAuthHandler=(.+)/log4j.logger.org.apache.axis.handlers.http.HTTPAuthHandler=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.kernel=(.+)/log4j.logger.org.dspace.kernel=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.services=(.+)/log4j.logger.org.dspace.services=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.servicemanager=(.+)/log4j.logger.org.dspace.servicemanager=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.providers=(.+)/log4j.logger.org.dspace.providers=DEBUG/" /dspace/config/log4j.properties
+    sed -i -re "s/log4j.logger.org.dspace.utils=(.+)/log4j.logger.org.dspace.utils=DEBUG/" /dspace/config/log4j.properties
+else
+    echo "Debugging off"
+fi
+
+# Try to start the Handle server
+su - dspace -c "DSPACE_HOME=$DSPACE_HOME RUN_HDL=$RUN_HDL maybe-start-handle-server"
+
 # Remove unused webapps
 # see https://wiki.duraspace.org/display/DSDOC5x/Performance+Tuning+DSpace
 if [ -n "$DSPACE_WEBAPPS" ]; then
+    echo "Removing webapps except: $DSPACE_WEBAPPS"
     webapps=($(ls $CATALINA_HOME/webapps | tr -d '/'))
+    echo "Found webapps: ${webapps[*]}"
     webapps_to_keep=($(echo "$DSPACE_WEBAPPS solr"))
     for element in ${webapps_to_keep[@]}; do
       webapps=(${webapps[@]/$element})
     done
     for webapp in ${webapps[@]}; do
+      echo "Deleting $webapp"
       rm -rf $CATALINA_HOME/webapps/$webapp
     done
 fi
+
+# If the URL path is just the hostname, symlink the selected UI to the "ROOT" folder
+if [[ "/" == "${DSPACE_URL: -1}" ]]; then
+   echo "Exposing $DSPACE_UI at the site root"
+   ln -s /usr/local/tomcat/webapps/$DSPACE_UI /usr/local/tomcat/webapps/ROOT
+fi
+
 
 # Start Tomcat (with full path to catalina.sh, because su resets our $PATH)
 exec su - dspace -c "$CATALINA_HOME/bin/catalina.sh run"
