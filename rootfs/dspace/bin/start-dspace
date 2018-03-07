@@ -92,6 +92,8 @@ fi
 customize-xmlui
 customize-config
 
+echo "Copying customizations from theme folder"
+
 # Copy any custom Spring files from your theme into the DSpace spring folder
 if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/ ]; then
     cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/spring/* $DSPACE_HOME/config/spring/
@@ -119,6 +121,17 @@ if [ -f /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/config/news-xmlui.x
 else
     echo "No news-xmlui.xml file found in $DSPACE_THEME"
 fi
+
+# Copy static files into the Tomcat xmlui folder
+if [ -d /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/static ]; then
+    cp -rp /usr/local/tomcat/webapps/xmlui/themes/$DSPACE_THEME/static /usr/local/tomcat/webapps/xmlui/
+else
+    echo "No static content found in $DSPACE_THEME"
+fi
+
+echo "Finished copying theme customizations"
+
+
 
 if [[ "no" != "$DEBUG" ]]; then
     echo "Debugging enabled"
