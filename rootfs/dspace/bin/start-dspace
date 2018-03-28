@@ -6,6 +6,12 @@ service cron start
 
 DEBUG=${DEBUG:-no}
 
+# Create scheduled maintenance task log folder
+mkdir -p /var/log/dspace-tasks && chown dspace:dspace /var/log/dspace-tasks
+
+# Create task queue folder
+mkdir -p $DSPACE_HOME/ctqueues
+
 echo "Checking folder ownership in $DSPACE_HOME"
 find $DSPACE_HOME -mindepth 1 -maxdepth 1 -type d | while read -r dir
 do
