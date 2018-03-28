@@ -13,7 +13,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # Set JAVA_OPTS with defaults for DSpace Cron Jobs.
 # Only provides 512MB of memory by default (which should be enough for most sites).
-JAVA_OPTS="-Xmx1024M -Xms512M -Dfile.encoding=UTF-8"
+JAVA_OPTS="-Xmx2048M -Xms512M -Dfile.encoding=UTF-8"
 
 #--------------
 # HOURLY TASKS (Recommended to be run multiple times per day, if possible)
@@ -40,7 +40,7 @@ JAVA_OPTS="-Xmx1024M -Xms512M -Dfile.encoding=UTF-8"
 
 # Re-Optimize the Discovery indexes at 12:30 every day
 # (This ensures that the Discovery Solr Index is re-optimized for better performance)
-30 0 * * * dspace $DSPACE/bin/dspace index-discovery -o > /dev/null
+30 0 * * * dspace $DSPACE/bin/dspace index-discovery -o > /var/log/dspace-tasks/index-discovery.log
 
 # run the index-authority script once a day at 12:45 to ensure the Solr Authority cache is up to date
 45 0 * * * dspace $DSPACE/bin/dspace index-authority > /dev/null
@@ -62,7 +62,7 @@ JAVA_OPTS="-Xmx1024M -Xms512M -Dfile.encoding=UTF-8"
 # Run the media filter at 03:00 every day.
 # (This task ensures that thumbnails are generated for newly add images,
 # and also ensures full text search is available for newly added PDF/Word/PPT/HTML documents)
-0 3 * * * dspace $DSPACE/bin/dspace filter-media
+0 3 * * * dspace $DSPACE/bin/dspace filter-media > /var/log/dspace-tasks/filter-media.log
 
 # Run any Curation Tasks queued from the Admin UI at 04:00 every day
 # (Ensures that any curation task that an administrator "queued" from the Admin UI is executed
