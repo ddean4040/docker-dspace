@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Fix NUMBER OF HARD LINKS > 1 error that breaks scheduled tasks
+touch /etc/crontab /etc/cron.*/*
+
 # Start the cron service for DSpace's scheduled maintenance tasks
 # See: /etc/cron.d/dspace-maintenance-tasks
 service cron start
