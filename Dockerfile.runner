@@ -2,10 +2,13 @@
 # DSpace image - multistage build
 #
 
-FROM njsl/dspace-docker:base-5.8 AS dspace
-
 # Set DSpace version
 ARG DSPACE_VERSION=5.8
+
+FROM njsl/dspace-docker:base-${DSPACE_VERSION} AS dspace
+
+#Make DSPACE_VERSION available to build
+ARG DSPACE_VERSION
 
 # Set DSpace home directory
 ARG DSPACE_HOME=/dspace

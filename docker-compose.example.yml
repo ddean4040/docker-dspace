@@ -16,7 +16,7 @@ services:
 
   dspace:
     container_name: dspace
-    image: njsl/dspace-docker:dspace-5.8
+    image: njsl/dspace-docker:dspace-$DSPACE_VERSION
     ports:
       - 8080:8080
       - 8000:8000
