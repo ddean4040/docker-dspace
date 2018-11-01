@@ -22,6 +22,8 @@ Debian GNU/Linux 9.1 image.
 
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
+This fork creates a production image without Ant, Maven, or other build tools. This keeps the image small(er). It also adds support for bundling custom themes, and loading custom configuration from themes at runtime.
+
 
 # Build process
 
