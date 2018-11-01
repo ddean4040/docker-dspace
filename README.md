@@ -23,9 +23,23 @@ Debian GNU/Linux 9.1 image.
 [DSpace](https://wiki.duraspace.org/display/DSDOC5x/Introduction) is an open-source software package typically used for creating open-access repositories for scholarly/published digital content. While DSpace shares some feature overlap with content management systems and document management systems, the DSpace repository software serves a specific need as a digital archives system, focused on the long-term storage, access, and preservation of digital content.
 
 
+# Build process
+
 ## Build
 
-If you have custom themes, you can add them to your `mirage2-themes` folder (for Mirage2-based themes) or `xmlui-themes`, then build a base image:
+If you have custom themes, you can add them to your `mirage2-themes` folder (for Mirage2-based themes) or `xmlui-themes`, then build a DSpace image.
+
+### Build script
+
+Use the `build.sh` script as a base and pass the DSpace version as a parameter:
+
+```console
+./build.sh 5.9
+```
+
+### Manual build
+
+Build a base image:
 
 ```console
 docker build . --file Dockerfile.builder --tag njsl/dspace-docker:base-5.8
@@ -37,11 +51,16 @@ Then build your production image:
 docker build . --file Dockerfile.runner --tag njsl/dspace-docker:dspace-5.8
 ```
 
+## Test
+
+Use the `test.sh` script to fire up a test instance.
+
+
 ## Deploy
 
 Set everything you need through ENV variables or your themes. Check out docker-compose.example.yml for an example.
 
-## Handle server
+# Handle server
 
 This image includes a Handle server. If you don't have an existing Handle server set up, you can generate one through the `dspace` command:
 
@@ -51,7 +70,7 @@ docker exec -it -u dspace dspace bin/dspace make-handle-config /dspace/handle-se
 
 Once your Handle files are in place, use the `RUN_HDL` ENV variable to control the Handle server.
 
-## Environment Variables
+# Environment Variables
 This image provides sane defaults for most settings but you can override many of those via environment variables, either with `-e` on the Docker command line or in your `docker-compose.yml`.
 
 For example, by providing `-e` on the command line with `docker run`:
@@ -77,7 +96,7 @@ environment:
   - CATALINA_OPTS=-Xms2048m -Xmx2048m -Dfile.encoding=UTF-8
 ```
 
-### DSpace URL control
+## DSpace URL control
 
   - `HTTP_HOSTNAME` (optional) The hostname at which you want to access DSpace (`localhost` by default)
   - `HTTP_PORT` (optional)     The port you want to use to access DSpace (`8080` by default)
@@ -85,13 +104,13 @@ environment:
   - `DSPACE_UI` (optional)     The primary DSpace web UI (`xmlui` by default)
   - `DSPACE_URL` (optional)    the DSpace base URL (`${HTTP_HOSTNAME}/${DSPACE_UI}` by default)
 
-### DSpace theme and other settings
+## DSpace theme and other settings
 
   - `DSPACE_NAME` (optional)   A friendly name for your DSpace site (`"DSpace at My University"` by default)
   - `DSPACE_THEME` (optional)  The XMLUI theme to use for your DSpace site (`Mirage2` by default)
   - `HANDLE_PREFIX` (optional) The Handle prefix to use for new items on your DSpace site (`123456789` by default)
 
-### Mail settings
+## Mail settings
 
   - `MAIL_SERVER` (optional)        The server to use for outgoing mail (`mail.example.com` by default)
   - `MAIL_PORT` (optional)          The port to use for outgoing mail (e.g. 25 or 587)
@@ -103,15 +122,15 @@ environment:
   - `MAIL_ALERT_ADDR` (optional)    The email address for alerts
   - `MAIL_REG_ADDR` (optional)      The registration notification email
 
-### Handle server control
+## Handle server control
 
   - `RUN_HDL` (optional) Set to `yes` to enable the Handle server. If the Handle server is not properly configured, may cause the container to crash.  (`no` by default)
 
-### Debug mode
+## Debug mode
 
   - `DEBUG` (optional)   Set to `yes` to enable all possible logging at DEBUG level for troubleshooting. Not recommended for production use. (`no` by default)
 
-### PostgreSQL Connection Parameters
+## PostgreSQL Connection Parameters
 To use an external PostgreSQL database or override any of the other default settings you have to set some environment variables:
   - `POSTGRES_DB_HOST` (required): The server host name or IP
   - `POSTGRES_DB_PORT` (optional): The server port (`5432` by default)
@@ -121,7 +140,7 @@ To use an external PostgreSQL database or override any of the other default sett
   - `POSTGRES_ADMIN_USER` (optional): The admin user creating the Database and the user (`postgres` by default)
   - `POSTGRES_ADMIN_PASSWORD` (optional): The password of the admin user
 
-### DSpace Administrator User
+## DSpace Administrator User
 Control the parameters used to create the default DSpace administrator's login account:
   - `ADMIN_EMAIL` (optional): The DSpace administrator's email address (`devops@1science.com` by default)
   - `ADMIN_FIRSTNAME` (optional): The DSpace administrator's first name (`DSpace` by default)
@@ -129,7 +148,7 @@ Control the parameters used to create the default DSpace administrator's login a
   - `ADMIN_PASSWD` (optional): The DSpace administrator's password (`admin123` by default)
   - `ADMIN_LANGUAGE` (optional): The DSpace administrator's language (`en` by default)
 
-### Configure Installed Webapps
+## Configure Installed Webapps
 Sometimes we don't really need all the DSpace webapps. You can specify which ones to enable using an environment variable:
 
 ```console
