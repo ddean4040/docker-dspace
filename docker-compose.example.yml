@@ -28,12 +28,12 @@ services:
       - solr-data:/dspace/solr/search/data
     environment:
       POSTGRES_DB_HOST: dspace_db
-      HTTP_HOSTNAME: repo.njstatelib.org
+      HTTP_HOSTNAME: dspace.example.com
       HTTP_PORT: 443
       HTTP_SCHEME: https
       DSPACE_UI: xmlui
-      DSPACE_URL: https:\/\/repo.njstatelib.org\/
-      DSPACE_NAME: "NJ Legislative Histories"
+      DSPACE_URL: https:\/\/dspace.example.com\/
+      DSPACE_NAME: "Test Site"
       HANDLE_PREFIX: 123456789
       MAIL_SERVER: "mail.example.com"
       MAIL_USERNAME: ""
