@@ -64,6 +64,21 @@ RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
         -t elem -n "version" -v "1.3" \
         dspace/pom.xml
 
+# Change the rb-inotify version to work around https://jira.duraspace.org/browse/DS-4115
+RUN xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
+       -s "/x:project/x:dependencies" \
+       -t elem -n "dependencyADD" \
+       -s "/x:project/x:dependencies/dependencyADD" \
+       -t elem -n "groupId" -v "rubygems" \
+       -s "/x:project/x:dependencies/dependencyADD" \
+       -t elem -n "artifactId" -v "rb-inotify" \
+       -s "/x:project/x:dependencies/dependencyADD" \
+       -t elem -n "version" -v "0.9.10" \
+       -s "/x:project/x:dependencies/dependencyADD" \
+       -t elem -n "type" -v "gem" \
+       -r "/x:project/x:dependencies/dependencyADD" -v dependency \
+       dspace/dspace/modules/xmlui-mirage2/pom.xml
+
 
 # Copy customized build.properties (taken straight from the DSpace source
 # tree and modified only to add bits to make it easier to replace hostname
@@ -88,6 +103,7 @@ RUN cd dspace/dspace/target/dspace-installer \
 
 # Download the MaxMind GeoIP database
 RUN wget -qO- http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz | gunzip -c > "$DSPACE_HOME"/config/GeoLiteCity.dat
+RUN wget -qO- http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz | tar -zxf - --strip-components=1 && mv GeoLite2-City.mmdb "$DSPACE_HOME"/config/
 
 # Clean up DSpace build files
 RUN rm -rf "$DSPACE_HOME/.m2"
